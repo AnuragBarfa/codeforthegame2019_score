@@ -31,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
        //If the call to the server was successful, parse the JSON
       Map<String, dynamic> data=json.decode(response.body);
       print(data);
-      for (var i=0;i<2;i++){
+      for (var i=0;i<data['matches'].length;i++){
         print(data['matches'][i]);
         UpMatche curMatch=UpMatche.fromJSON(data['matches'][i]);
         setState(() =>  _UpMatches.add(curMatch));
@@ -239,13 +239,16 @@ class UpMatcheTile extends StatelessWidget {
     children: <Widget>[
       Container(
         margin: new EdgeInsets.all(10.0),
+        decoration: new BoxDecoration(
+          color: Colors.white
+        ),
         alignment: AlignmentDirectional(0.0, 0.0),
         child: Container(
           child: new Column(
             children: <Widget>[
               new Row(
                 children: <Widget>[
-                  new Text(_UpMatche.dateTimeGMT.split('T')[0])
+                  new Text(_UpMatche.date)
                 ],
               ),
               new Container(
@@ -258,6 +261,12 @@ class UpMatcheTile extends StatelessWidget {
                       width:3.0
                     )
                   ),
+                  boxShadow:[
+                    new BoxShadow(
+                      color: Colors.black,
+                      blurRadius: 3.0
+                    )
+                  ],
                   color: Color.fromRGBO(230, 230, 230, 1.0)
                 ),
                 child: new Row(
@@ -287,7 +296,7 @@ class UpMatcheTile extends StatelessWidget {
                                   new Text(" vs "),
                                   new Text(_UpMatche.team_2.toUpperCase()),
                                   new Divider(),
-                                  new Text(_UpMatche.dateTimeGMT.split('T')[1].split('Z')[0])
+                                  new Text(_UpMatche.dateTimeGMT+'  |  '+_UpMatche.dateTimeIST)
                                 ],
                               ),
                             ),
