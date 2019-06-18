@@ -3,6 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../repository/upcoming_matches_repository.dart';
 import '../../models/upcoming_match.dart';
+import '../../models/upMatchTile.dart';
+import '../../models/leaderBoardTile.dart';
+import '../../models/leaderBoardRow.dart';
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -10,12 +13,14 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   List<UpMatche> _UpMatches = <UpMatche>[];
+  List<LeaderBoardRow> _LeaderBoardRows = <LeaderBoardRow>[];
 
   @override
   void initState() {
     super.initState();
     // listenForUpMatches();
-    fetch();
+    fetchUpComing();
+    fetchLeaderboard();
   } 
 
   void listenForUpMatches() async {
@@ -24,15 +29,13 @@ class _MainScreenState extends State<MainScreen> {
       setState(() =>  _UpMatches.add(upmatch))
     );
   }
-  void fetch() async{
+  void fetchUpComing() async{
     final response =
         await http.get('https://cricapi.com/api/matches?apikey=FEOXAZzomMhoqW1tqDBttVccWfp2'); 
     if (response.statusCode == 200) {
        //If the call to the server was successful, parse the JSON
       Map<String, dynamic> data=json.decode(response.body);
-      print(data);
       for (var i=0;i<data['matches'].length;i++){
-        print(data['matches'][i]);
         UpMatche curMatch=UpMatche.fromJSON(data['matches'][i]);
         setState(() =>  _UpMatches.add(curMatch));
       }
@@ -42,6 +45,24 @@ class _MainScreenState extends State<MainScreen> {
       throw Exception('Failed to load post');
     }
   }
+  void fetchLeaderboard() async{
+    final response =
+        await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/standings.json?api_key=wggcfwq4abb33tg44sw33dtg'); 
+    if (response.statusCode == 200) {
+       //If the call to the server was successful, parse the JSON
+      Map<String, dynamic> data=json.decode(response.body);
+      print(data['standings'][0]['groups'][0]['team_standings']);
+      for(var i=0;i<data['standings'][0]['groups'][0]['team_standings'].length;i++){
+        LeaderBoardRow currRow=LeaderBoardRow.fromJSON(data['standings'][0]['groups'][0]['team_standings'][i]);
+        setState(() => _LeaderBoardRows.add(currRow));
+      }
+
+    } else {
+       //If that call was not successful, throw an error.
+      throw Exception('Failed to load post');
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,7 +86,7 @@ class _MainScreenState extends State<MainScreen> {
             bottom: new TabBar(
               tabs: [
                 new Tab(text: 'FEATURED'),
-                new Tab(text: 'DEALS'),
+                new Tab(text: 'LEADERBOARD'),
                 new Tab(text: 'CATEGORY'),
               ],
               indicatorColor: Colors.white,
@@ -77,9 +98,9 @@ class _MainScreenState extends State<MainScreen> {
                 itemCount: _UpMatches.length,
                 itemBuilder: (context, index) => UpMatcheTile(_UpMatches[index]),
               ),
-              new Icon(
-                Icons.directions_transit,
-                size: 50.0,
+              new ListView.builder(
+                itemCount: _LeaderBoardRows.length,
+                itemBuilder: (context, index) => LeaderBoardTile(_LeaderBoardRows[index]),
               ),
               new Icon(
                 Icons.directions_bike,
@@ -230,95 +251,4 @@ class _MainScreenState extends State<MainScreen> {
       // ),
     );
   }
-}
-class UpMatcheTile extends StatelessWidget {
-  final UpMatche _UpMatche;
-  UpMatcheTile(this._UpMatche);
-  @override
-  Widget build(BuildContext context) => Column(
-    children: <Widget>[
-      Container(
-        margin: new EdgeInsets.all(10.0),
-        decoration: new BoxDecoration(
-          color: Colors.white
-        ),
-        alignment: AlignmentDirectional(0.0, 0.0),
-        child: Container(
-          child: new Column(
-            children: <Widget>[
-              new Row(
-                children: <Widget>[
-                  new Text(_UpMatche.date)
-                ],
-              ),
-              new Container(
-                margin: new EdgeInsets.only(top: 8.0),
-                padding: new EdgeInsets.all(10.0),
-                decoration: new BoxDecoration(
-                  border: Border(
-                    top: BorderSide(
-                      color: Colors.lightBlue,
-                      width:3.0
-                    )
-                  ),
-                  boxShadow:[
-                    new BoxShadow(
-                      color: Colors.black,
-                      blurRadius: 3.0
-                    )
-                  ],
-                  color: Color.fromRGBO(230, 230, 230, 1.0)
-                ),
-                child: new Row(
-                  children: <Widget>[
-                    new Container(
-                      child: new CircleAvatar(
-                        backgroundImage: new AssetImage("assets/images/profile.jpg"),
-                        backgroundColor: Colors.red,
-                        radius: 30.0,
-                      ),
-                    ),
-                    new Expanded(
-                      child: new Container(
-                              // decoration: new BoxDecoration(border: Border.all()),
-                              padding: new EdgeInsets.all(8.0),
-                              child: new Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: <Widget>[
-                                  new Container(
-                                    padding: new EdgeInsets.only(left: 8.0,right: 8.0),
-                                    color: new Color.fromRGBO(217, 217, 217, 1.0),
-                                    child: new Text(_UpMatche.type),
-                                  ),
-                                  new SizedBox(height: 8.0),
-                                  new Text(_UpMatche.team_1.toUpperCase()),
-                                  new Text(" vs "),
-                                  new Text(_UpMatche.team_2.toUpperCase()),
-                                  new Divider(),
-                                  new Text(_UpMatche.dateTimeGMT+'  |  '+_UpMatche.dateTimeIST)
-                                ],
-                              ),
-                            ),
-                    ),
-                    new Container(
-                      child: new CircleAvatar(
-                        backgroundImage: new AssetImage("assets/images/profile.jpg"),
-                        backgroundColor: Colors.red,
-                        radius: 30.0,
-                      ),
-                    )
-                  ],
-                ),                            
-              ),
-            ],
-          )
-        ),
-      ),
-      // ListTile(
-      //   title: Text(_UpMatche.team_1),
-      //   subtitle: Text(_UpMatche.team_2),
-      // ),
-    ],
-  );
 }
