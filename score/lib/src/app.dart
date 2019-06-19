@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'screens/main.dart';
+import 'screens/history.dart';
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -8,6 +9,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
         '/main': (BuildContext context) => new MainScreen(),
+        //'/previous':(BuildContext context) => new History(),
         // '/account': (BuildContext context) => new AccountScreen(),
         
         // '/signin': (BuildContext context) => new LoginPage(),

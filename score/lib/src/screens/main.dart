@@ -51,7 +51,9 @@ class _MainScreenState extends State<MainScreen> {
     if (response.statusCode == 200) {
        //If the call to the server was successful, parse the JSON
       Map<String, dynamic> data=json.decode(response.body);
-      print(data['standings'][0]['groups'][0]['team_standings']);
+      // print(data['standings'][0]['groups'][0]['team_standings']);
+      // LeaderBoardRow header=LeaderBoardRow.fromData("Team","Rank","M","W","D","L","PTS","NRR");
+      // _LeaderBoardRows.add(header);
       for(var i=0;i<data['standings'][0]['groups'][0]['team_standings'].length;i++){
         LeaderBoardRow currRow=LeaderBoardRow.fromJSON(data['standings'][0]['groups'][0]['team_standings'][i]);
         setState(() => _LeaderBoardRows.add(currRow));
@@ -85,9 +87,8 @@ class _MainScreenState extends State<MainScreen> {
             ],
             bottom: new TabBar(
               tabs: [
-                new Tab(text: 'FEATURED'),
+                new Tab(text: 'UPCOMINGS'),
                 new Tab(text: 'LEADERBOARD'),
-                new Tab(text: 'CATEGORY'),
               ],
               indicatorColor: Colors.white,
             ),
@@ -98,14 +99,76 @@ class _MainScreenState extends State<MainScreen> {
                 itemCount: _UpMatches.length,
                 itemBuilder: (context, index) => UpMatcheTile(_UpMatches[index]),
               ),
-              new ListView.builder(
-                itemCount: _LeaderBoardRows.length,
-                itemBuilder: (context, index) => LeaderBoardTile(_LeaderBoardRows[index]),
-              ),
-              new Icon(
-                Icons.directions_bike,
-                size: 50.0,
-              ),
+              
+              new Container(
+                padding: new EdgeInsets.only(top: 20.0),
+                height: 44.0,
+                child: new Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    new Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        new Text("LEADERBOARD",style: new TextStyle(fontSize: 30),)
+                      ],
+                    ),
+                    new Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        new Text("-- WORLD CUP 2019 --",style: new TextStyle(fontSize: 15,),)
+                      ],
+                    ),
+                    new SizedBox(height: 10.0,),
+                    new Container(
+                      padding: new EdgeInsets.only(left:8.0),
+                      child: new Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          new Expanded(
+                            flex: 2,
+                            child: new Text("Rank"),
+                          ),
+                          new Expanded(
+                            flex: 3,
+                            child: new Text("Team"),
+                          ),
+                          new Expanded(
+                            flex: 1,
+                            child: new Text("M"),
+                          ),
+                          new Expanded(
+                            flex: 1,
+                            child: new Text("W"),
+                          ),
+                          new Expanded(
+                            flex: 1,
+                            child: new Text("L"),
+                          ),
+                          new Expanded(
+                            flex: 1,
+                            child: new Text("PTS"),
+                          ),
+                          new Expanded(
+                            flex: 2,
+                            child:new Text("NRR") ,
+                          )
+                        ],
+                      ),
+                    ),    
+                    new Divider(),
+                    new Expanded(//use Expanded to wrap list view in case of error for unbound height
+                      child:new ListView.builder(
+                        itemCount: _LeaderBoardRows.length,
+                        itemBuilder: (context, index) => LeaderBoardTile(_LeaderBoardRows[index]),
+                      ),
+                    ),
+                  ],
+                ),
+              )
             ],
           ),
           drawer: Drawer(

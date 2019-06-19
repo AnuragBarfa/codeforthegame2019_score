@@ -5,20 +5,60 @@ class LeaderBoardTile extends StatelessWidget{
   LeaderBoardTile(this._LeaderBoardRow);
   @override 
   Widget build(BuildContext context)=>Column(
-    children: <Widget>[
-      new Row(
-        children: <Widget>[
-          new Text(_LeaderBoardRow.rank.toString()),
-          new Text(_LeaderBoardRow.name)
-        ],
-      ),
-      new Row(
-        children: <Widget>[
-          new Text(_LeaderBoardRow.played.toString()),
-          new Text(_LeaderBoardRow.win.toString()),
-          new Text(_LeaderBoardRow.loss.toString()) 
-        ],
-      )
+    children: <Widget>[ 
+      new Container(
+          margin: new EdgeInsets.all(10.0),
+          decoration: new BoxDecoration(
+            color: Colors.white
+          ),
+          alignment: AlignmentDirectional(0.0, 0.0),
+          child: Container(
+            padding: new EdgeInsets.all(8.0),
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                  flex: 1,
+                  child: new Text(_LeaderBoardRow.rank),
+                ),
+                new Expanded(
+                  flex: 5,
+                  child: new Container(
+                    child: new Row(
+                      children: <Widget>[
+                        new CircleAvatar(
+                          backgroundImage: new AssetImage("assets/images/profile.jpg"),
+                          backgroundColor: Colors.red,
+                          radius: 20.0,
+                        ),
+                        new Text("  "+_LeaderBoardRow.name),
+                      ],
+                    ),
+                  ),
+                ),
+                new Expanded(
+                  flex: 1,
+                  child:new Text(_LeaderBoardRow.played) ,
+                ),
+                new Expanded(
+                  flex: 1,
+                  child: new Text(_LeaderBoardRow.win),
+                ),
+                new Expanded(
+                  flex: 1,
+                  child: new Text(_LeaderBoardRow.loss),
+                ),
+                new Expanded(
+                  flex: 1,
+                  child: new Text(_LeaderBoardRow.points),
+                ),
+                new Expanded(
+                  flex: 2,
+                  child:new Text(_LeaderBoardRow.netRunRate) ,
+                ),      
+              ],
+            )
+          )
+      ), 
     ]
     );
 }
