@@ -43,7 +43,7 @@ class UpMatcheTile extends StatelessWidget {
                   children: <Widget>[
                     new Container(
                       child: new CircleAvatar(
-                        backgroundImage: new AssetImage("assets/images/profile.jpg"),
+                        backgroundImage: new AssetImage("assets/images/"+_UpMatche.team_1.toLowerCase().replaceAll(' ','-')+".jpg"),
                         backgroundColor: Colors.red,
                         radius: 30.0,
                       ),
@@ -66,14 +66,14 @@ class UpMatcheTile extends StatelessWidget {
                                   new Text(" vs "),
                                   new Text(_UpMatche.team_2.toUpperCase()),
                                   new Divider(),
-                                  new Text(_UpMatche.dateTimeGMT+'  |  '+_UpMatche.dateTimeIST)
+                                  new Text(_UpMatche.time+'  |  '+_UpMatche.status)
                                 ],
                               ),
                             ),
                     ),
                     new Container(
                       child: new CircleAvatar(
-                        backgroundImage: new AssetImage("assets/images/profile.jpg"),
+                        backgroundImage: new AssetImage("assets/images/"+_UpMatche.team_2.toLowerCase().replaceAll(' ','-')+".jpg"),
                         backgroundColor: Colors.red,
                         radius: 30.0,
                       ),

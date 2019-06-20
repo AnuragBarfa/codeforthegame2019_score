@@ -26,7 +26,7 @@ class LeaderBoardTile extends StatelessWidget{
                     child: new Row(
                       children: <Widget>[
                         new CircleAvatar(
-                          backgroundImage: new AssetImage("assets/images/profile.jpg"),
+                          backgroundImage: new AssetImage("assets/images/"+_LeaderBoardRow.name.toLowerCase().replaceAll(' ','-')+".jpg"),
                           backgroundColor: Colors.red,
                           radius: 20.0,
                         ),

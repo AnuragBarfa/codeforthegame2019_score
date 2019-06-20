@@ -1,15 +1,11 @@
 class UpMatche{
-  final int unique_id;
+  final String unique_id;
   final String date;
-  final String dateTimeGMT;
-  final String dateTimeIST;
+  final String time;
   final String team_1;
   final String team_2;
   final String type;
-  final bool squad;
-  final bool matchStarted;
-  final String winner_team;
-  final String toss_winner_team;
+  final String status;
   static String change(String time,int flag){
     var x=DateTime.parse(time);
     if(flag==1){
@@ -18,16 +14,21 @@ class UpMatche{
     String ans=x.toString().split(' ')[1].split('.')[0];
     return ans;
   }
+  UpMatche.fromData(String id, String date, String time, String team1, String team2, String type, String status):
+    unique_id=id,
+    date=date,
+    time=time,
+    team_1=team1,
+    team_2=team2,
+    type=type,
+    status=status;
+
   UpMatche.fromJSON(Map jsonMap):
     unique_id=jsonMap['unique_id'],
     date=jsonMap['date'].toString().split('T')[0],
-    dateTimeGMT=change(jsonMap['dateTimeGMT'].toString(),0),
-    dateTimeIST=change(jsonMap['dateTimeGMT'].toString(),1),
+    time=change(jsonMap['dateTimeGMT'].toString(),0),
     team_1=jsonMap['team-1'],
     team_2=jsonMap['team-2'],
     type=jsonMap['type'],
-    squad=jsonMap['squad'],
-    matchStarted=jsonMap['matchStarted'],
-    winner_team=jsonMap['winner_team'],
-    toss_winner_team=jsonMap['toss_winner_team'];
+    status=jsonMap['squad'];
 }

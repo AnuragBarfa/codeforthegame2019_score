@@ -45,6 +45,18 @@ flutter:
   assets:
     - assets/images/profile.jpg
     - assets/images/drawer.jpg
+    - assets/images/afghanistan.jpg
+    - assets/images/australia.jpg
+    - assets/images/bangladesh.jpg
+    - assets/images/england.jpg
+    - assets/images/india.jpg
+    - assets/images/new-zealand.jpg
+    - assets/images/pakistan.jpg
+    - assets/images/south-africa.jpg
+    - assets/images/sri-lanka.jpg
+    - assets/images/west-indies.jpg
+    
+
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
 

@@ -19,8 +19,8 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     // listenForUpMatches();
-    fetchUpComing();
-    fetchLeaderboard();
+    //fetchLeaderboard();
+    fetch();
   } 
 
   void listenForUpMatches() async {
@@ -29,17 +29,60 @@ class _MainScreenState extends State<MainScreen> {
       setState(() =>  _UpMatches.add(upmatch))
     );
   }
-  void fetchUpComing() async{
-    final response =
-        await http.get('https://cricapi.com/api/matches?apikey=FEOXAZzomMhoqW1tqDBttVccWfp2'); 
-    if (response.statusCode == 200) {
+  // void fetchUpComing() async{
+  //   final response =
+  //       await http.get('https://cricapi.com/api/matches?apikey=FEOXAZzomMhoqW1tqDBttVccWfp2'); 
+  //   if (response.statusCode == 200) {
+  //      //If the call to the server was successful, parse the JSON
+  //     Map<String, dynamic> data=json.decode(response.body);
+  //     for (var i=0;i<data['matches'].length;i++){
+  //       UpMatche curMatch=UpMatche.fromJSON(data['matches'][i]);
+  //       setState(() =>  _UpMatches.add(curMatch));
+  //     }
+
+  //   } else {
+  //      //If that call was not successful, throw an error.
+  //     throw Exception('Failed to load post');
+  //   }
+
+  // }
+  void fetch() async{
+    //fetching leaaderboard
+    final response1 =
+        await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/standings.json?api_key=wggcfwq4abb33tg44sw33dtg'); 
+    if (response1.statusCode == 200) {
        //If the call to the server was successful, parse the JSON
-      Map<String, dynamic> data=json.decode(response.body);
-      for (var i=0;i<data['matches'].length;i++){
-        UpMatche curMatch=UpMatche.fromJSON(data['matches'][i]);
-        setState(() =>  _UpMatches.add(curMatch));
+      Map<String, dynamic> data=json.decode(response1.body);
+      // print(data['standings'][0]['groups'][0]['team_standings']);
+      // LeaderBoardRow header=LeaderBoardRow.fromData("Team","Rank","M","W","D","L","PTS","NRR");
+      // _LeaderBoardRows.add(header);
+      for(var i=0;i<data['standings'][0]['groups'][0]['team_standings'].length;i++){
+        LeaderBoardRow currRow=LeaderBoardRow.fromJSON(data['standings'][0]['groups'][0]['team_standings'][i]);
+        setState(() => _LeaderBoardRows.add(currRow));
       }
 
+    } else {
+       //If that call was not successful, throw an error.
+      throw Exception('Failed to load post');
+    }
+    //fetching world cup schedule
+    final response =
+        await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key=wggcfwq4abb33tg44sw33dtg'); 
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data=json.decode(response.body);
+      // print(data['sport_events']);
+      for(var i=0;i<data['sport_events'].length;i++){
+        var unique_id=data['sport_events'][i]['id'];
+        var date=data['sport_events'][i]['scheduled'].toString().split('T')[0];
+        var team1=data['sport_events'][i]['competitors'][0]['name'];
+        var team2=data['sport_events'][i]['competitors'][1]['name'];
+        var status=data['sport_events'][i]['status'];
+        var time=data['sport_events'][i]['scheduled'].toString().split('T')[1].split('+')[0];
+        var type=data['sport_events'][i]['tournament']['type'].toString().toUpperCase();
+        // (String id, String date, String time, String team1, String team2, String type, String status):
+        UpMatche currMatch=UpMatche.fromData(unique_id,date,time,team1,team2,type,status);
+        setState(() =>  _UpMatches.add(currMatch));
+      }
     } else {
        //If that call was not successful, throw an error.
       throw Exception('Failed to load post');
@@ -87,7 +130,7 @@ class _MainScreenState extends State<MainScreen> {
             ],
             bottom: new TabBar(
               tabs: [
-                new Tab(text: 'UPCOMINGS'),
+                new Tab(text: 'SCHEDULE'),
                 new Tab(text: 'LEADERBOARD'),
               ],
               indicatorColor: Colors.white,
@@ -99,7 +142,7 @@ class _MainScreenState extends State<MainScreen> {
                 itemCount: _UpMatches.length,
                 itemBuilder: (context, index) => UpMatcheTile(_UpMatches[index]),
               ),
-              
+              // new Icon(Icons.access_alarm),
               new Container(
                 padding: new EdgeInsets.only(top: 20.0),
                 height: 44.0,
