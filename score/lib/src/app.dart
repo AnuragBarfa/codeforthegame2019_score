@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       routes: <String, WidgetBuilder>{
         '/main': (BuildContext context) => new MainScreen(),
-        //'/previous':(BuildContext context) => new History(),
+        // '/previous':(BuildContext context) => new History(),
         // '/account': (BuildContext context) => new AccountScreen(),
         
         // '/signin': (BuildContext context) => new LoginPage(),

@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import '../models/upcoming_match.dart';
-
+import '../src/screens/history.dart';
 class UpMatcheTile extends StatelessWidget {
+  var _textController =new TextEditingController();
   final UpMatche _UpMatche;
   UpMatcheTile(this._UpMatche);
   @override
   Widget build(BuildContext context) => Column(
     children: <Widget>[
-      Container(
+      new InkWell(
+        onTap: (){
+          print("object");
+          print(context);
+          // Navigator.pushNamed(context, '/previous');
+          var route = new MaterialPageRoute(
+            builder: (BuildContext context) => 
+              new History(_UpMatche.unique_id),
+          );
+          Navigator.of(context).push(route);
+        },
+        child: new  Container(
         margin: new EdgeInsets.all(10.0),
         decoration: new BoxDecoration(
           color: Colors.white
@@ -85,6 +97,7 @@ class UpMatcheTile extends StatelessWidget {
           )
         ),
       ),
+      )
       // ListTile(
       //   title: Text(_UpMatche.team_1),
       //   subtitle: Text(_UpMatche.team_2),

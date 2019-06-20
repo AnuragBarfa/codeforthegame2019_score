@@ -118,16 +118,16 @@ class _MainScreenState extends State<MainScreen> {
           appBar: new AppBar(
             title: new Text('Main'),
             backgroundColor: Colors.blue,
-            actions: <Widget>[
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.search),
-              ),
-              IconButton(
-                onPressed: () {},
-                icon: Icon(Icons.shopping_cart),
-              ),
-            ],
+            // actions: <Widget>[
+            //   IconButton(
+            //     onPressed: () {},
+            //     icon: Icon(Icons.search),
+            //   ),
+            //   IconButton(
+            //     onPressed: () {},
+            //     icon: Icon(Icons.shopping_cart),
+            //   ),
+            // ],
             bottom: new TabBar(
               tabs: [
                 new Tab(text: 'SCHEDULE'),
@@ -249,17 +249,17 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.pushNamed(context, '/account');
               },
             ),
-            ListTile(
-              leading:Icon(Icons.fullscreen),
-              title: Text('Scan'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/scan');
-              },
-            ),
+            // ListTile(
+            //   leading:Icon(Icons.fullscreen),
+            //   title: Text('Scan'),
+            //   onTap: () {
+            //     // Update the state of the app
+            //     // ...
+            //     // Then close the drawer
+            //     Navigator.pop(context);
+            //     Navigator.pushNamed(context, '/scan');
+            //   },
+            // ),
             // ListTile(
             //   leading: Icon(Icons.shopping_cart),
             //   title: Text('Cart'),
@@ -276,28 +276,28 @@ class _MainScreenState extends State<MainScreen> {
             // ListTile(
             //   title: Text('USER'),
             // ),
-            ListTile(
-              leading: Icon(Icons.account_circle),
-              title: Text('Profile'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/account');
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.local_play),
-              title: Text('Claimed Coupans'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/account');
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(Icons.account_circle),
+            //   title: Text('Profile'),
+            //   onTap: () {
+            //     // Update the state of the app
+            //     // ...
+            //     // Then close the drawer
+            //     Navigator.pop(context);
+            //     Navigator.pushNamed(context, '/account');
+            //   },
+            // ),
+            // ListTile(
+            //   leading: Icon(Icons.local_play),
+            //   title: Text('Claimed Coupans'),
+            //   onTap: () {
+            //     // Update the state of the app
+            //     // ...
+            //     // Then close the drawer
+            //     Navigator.pop(context);
+            //     Navigator.pushNamed(context, '/account');
+            //   },
+            // ),
             // Divider(
             //   height: 2.0,
             // ),
