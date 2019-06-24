@@ -6,6 +6,7 @@ import '../../models/upcoming_match.dart';
 import '../../models/upMatchTile.dart';
 import '../../models/leaderBoardTile.dart';
 import '../../models/leaderBoardRow.dart';
+import '../screens/setting.dart';
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -20,7 +21,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     // listenForUpMatches();
     //fetchLeaderboard();
-    fetch();
+    // fetch();
   } 
 
   void listenForUpMatches() async {
@@ -235,9 +236,6 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
             ),
-            // ListTile(
-            //   title: Text('MAIN'),
-            // ),
             ListTile(
               leading:Icon(Icons.home),
               title: Text('Home'),
@@ -246,64 +244,19 @@ class _MainScreenState extends State<MainScreen> {
                 // ...
                 // Then close the drawer
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading:Icon(Icons.home),
+              title: Text('My Team'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
                 Navigator.pushNamed(context, '/account');
               },
             ),
-            // ListTile(
-            //   leading:Icon(Icons.fullscreen),
-            //   title: Text('Scan'),
-            //   onTap: () {
-            //     // Update the state of the app
-            //     // ...
-            //     // Then close the drawer
-            //     Navigator.pop(context);
-            //     Navigator.pushNamed(context, '/scan');
-            //   },
-            // ),
-            // ListTile(
-            //   leading: Icon(Icons.shopping_cart),
-            //   title: Text('Cart'),
-            //   onTap: () {
-            //     // Update the state of the app
-            //     // ...
-            //     // Then close the drawer
-            //     Navigator.pop(context);
-            //   },
-            // ),
-            // Divider(
-            //   height: 2.0,
-            // ),
-            // ListTile(
-            //   title: Text('USER'),
-            // ),
-            // ListTile(
-            //   leading: Icon(Icons.account_circle),
-            //   title: Text('Profile'),
-            //   onTap: () {
-            //     // Update the state of the app
-            //     // ...
-            //     // Then close the drawer
-            //     Navigator.pop(context);
-            //     Navigator.pushNamed(context, '/account');
-            //   },
-            // ),
-            // ListTile(
-            //   leading: Icon(Icons.local_play),
-            //   title: Text('Claimed Coupans'),
-            //   onTap: () {
-            //     // Update the state of the app
-            //     // ...
-            //     // Then close the drawer
-            //     Navigator.pop(context);
-            //     Navigator.pushNamed(context, '/account');
-            //   },
-            // ),
-            // Divider(
-            //   height: 2.0,
-            // ),
-            // ListTile(
-            //   title: Text('EXTRAS'),
-            // ),
             ListTile(
               leading: Icon(Icons.settings),
               title: Text('Settings'),
@@ -312,6 +265,11 @@ class _MainScreenState extends State<MainScreen> {
                 // ...
                 // Then close the drawer
                 Navigator.pop(context);
+                var route = new MaterialPageRoute(
+                  builder: (BuildContext context) => 
+                    new Setting(),
+                );
+                Navigator.of(context).push(route);
               },
             ),
             ListTile(
@@ -322,39 +280,13 @@ class _MainScreenState extends State<MainScreen> {
                 // ...
                 // Then close the drawer
                 Navigator.pop(context);
-                Navigator.pushNamed(context, '/signin');
               },
             ),
-            ListTile(
-              leading: Icon(Icons.power_settings_new),
-              title: Text('Logout'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/signin');
-              },
-            ),
-            
           ],
         ),
       ),
         ),
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   // Using custom color for FAB
-      //   backgroundColor: Color(0xFFd2527f),
-      //   // Add icon to FAB and override default color
-      //   child: Icon(
-      //     Icons.polymer,
-      //     color: Color(0xFF000000),
-      //   ),
-      //   onPressed: () {
-      //     // Navigate to the second screen using a named route
-      //     Navigator.pushNamed(context, '/signup');
-      //   },
-      // ),
     );
   }
 }

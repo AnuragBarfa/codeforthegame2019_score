@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/upcoming_match.dart';
-import '../src/screens/history.dart';
+import '../src/screens/match_detail.dart';
 class UpMatcheTile extends StatelessWidget {
   var _textController =new TextEditingController();
   final UpMatche _UpMatche;
@@ -15,7 +15,7 @@ class UpMatcheTile extends StatelessWidget {
           // Navigator.pushNamed(context, '/previous');
           var route = new MaterialPageRoute(
             builder: (BuildContext context) => 
-              new History(_UpMatche.unique_id),
+              new Detail(_UpMatche.unique_id),
           );
           Navigator.of(context).push(route);
         },
