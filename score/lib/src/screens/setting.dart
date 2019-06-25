@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 // Create a Form widget.
 class Setting extends StatefulWidget {
   @override
   SettingState createState() => SettingState();
 }
+
 String dropDownValue="Chose Your Team";
 // Create a corresponding State class.
 // This class holds data related to the form.
@@ -35,6 +38,13 @@ class SettingState extends State<Setting> {
                           value: k,
                           child: Text(v),
                         )));
+    loadTeamName();                                        
+  }
+  void loadTeamName() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      dropDownValue=prefs.getString('fav_team');
+    });
   }
   @override
   Widget build(BuildContext context) {
@@ -84,15 +94,17 @@ class SettingState extends State<Setting> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
                       child: RaisedButton(
-                        onPressed: () {
+                        onPressed: () async{
                           // Validate returns true if the form is valid, or false
                           // otherwise.
-                          print("in");
+                          // print("in");
                           if (_formKey.currentState.validate()) {
                             // If the form is valid, display a Snackbar.
-                            print("inside");
-                            
-                            // Scaffold.of(context)
+                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            prefs.setString('fav_team', dropDownValue);
+                            // print("inside");
+                            // print(dropDownValue);
+                            // // Scaffold.of(context)
                             //     .showSnackBar(SnackBar(content: Text('Processing Data')));
                           }
                         },

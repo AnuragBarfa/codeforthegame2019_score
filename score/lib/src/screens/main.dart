@@ -7,114 +7,127 @@ import '../../models/upMatchTile.dart';
 import '../../models/leaderBoardTile.dart';
 import '../../models/leaderBoardRow.dart';
 import '../screens/setting.dart';
+import '../screens/my_team.dart';
+import '../screens/leaderboard.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+String key="mw23cr5x274anr3xx9g6yugj";
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
+  String matchId;
+  String overs;
+  String score;
+  String runRate;
+  String currentInning;
+  String tossWonBy;
+  String battingTeam;
+  String bowlingTeam;
+  Map<String,String> teamName;
+  Set<int> index;
   List<UpMatche> _UpMatches = <UpMatche>[];
-  List<LeaderBoardRow> _LeaderBoardRows = <LeaderBoardRow>[];
-
   @override
-  void initState() {
+  void initState(){
     super.initState();
-    // listenForUpMatches();
+    listenForUpMatches();
     //fetchLeaderboard();
     // fetch();
+    overs="23.1/50";
+    score="130/1";
+    runRate="6.67";
+    currentInning="1";
+    tossWonBy="South Africa";
+    battingTeam="South Africa";
+    bowlingTeam="South Africa";
+    teamName = <String, String>{};
+    teamName["sr:competitor:142708"]="South Africa";
+    teamName["sr:competitor:142690"]="Australia";
+    teamName["sr:competitor:107205"]="England";
+    teamName["sr:competitor:142702"]="New Zealand";
+    teamName["sr:competitor:107203"]="India";
+    teamName["sr:competitor:142704"]="Pakistan";
+    teamName["sr:competitor:142710"]="Sri Lanka";
+    teamName["sr:competitor:142692"]="Bangladesh";
+    teamName["sr:competitor:142714"]="West Indies";
+    teamName["sr:competitor:142688"]="Afghanistan";
+    index=new Set();
   } 
 
   void listenForUpMatches() async {
-    final Stream<UpMatche> stream = await getUpMatches();
-    stream.listen((UpMatche upmatch) =>
-      setState(() =>  _UpMatches.add(upmatch))
-    );
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('fav_team'));
+    
   }
-  // void fetchUpComing() async{
+  // void fetch() async{
+  //   //fetching world cup schedule
   //   final response =
-  //       await http.get('https://cricapi.com/api/matches?apikey=FEOXAZzomMhoqW1tqDBttVccWfp2'); 
+  //       await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key='+key); 
   //   if (response.statusCode == 200) {
-  //      //If the call to the server was successful, parse the JSON
   //     Map<String, dynamic> data=json.decode(response.body);
-  //     for (var i=0;i<data['matches'].length;i++){
-  //       UpMatche curMatch=UpMatche.fromJSON(data['matches'][i]);
-  //       setState(() =>  _UpMatches.add(curMatch));
+  //     // print(data['sport_events']);
+  //     for(var i=0;i<data['sport_events'].length;i++){
+  //       var unique_id=data['sport_events'][i]['id'];
+  //       var date=data['sport_events'][i]['scheduled'].toString().split('T')[0];
+  //       var team1=data['sport_events'][i]['competitors'][0]['name'];
+  //       var team2=data['sport_events'][i]['competitors'][1]['name'];
+  //       var status=data['sport_events'][i]['status'];
+  //       var time=data['sport_events'][i]['scheduled'].toString().split('T')[1].split('+')[0];
+  //       var type=data['sport_events'][i]['tournament']['type'].toString().toUpperCase();
+  //       // (String id, String date, String time, String team1, String team2, String type, String status):
+  //       UpMatche currMatch=UpMatche.fromData(unique_id,date,time,team1,team2,type,status);
+  //       setState(() =>  _UpMatches.add(currMatch));
   //     }
-
   //   } else {
   //      //If that call was not successful, throw an error.
   //     throw Exception('Failed to load post');
   //   }
-
   // }
-  void fetch() async{
-    //fetching leaaderboard
-    final response1 =
-        await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/standings.json?api_key=wggcfwq4abb33tg44sw33dtg'); 
-    if (response1.statusCode == 200) {
+  void fetch(String mId) async{
+    final response =
+        await http.get('https://api.sportradar.com/cricket-t2/en/matches/'+ mId +'/timeline/delta.json?api_key='+key); 
+    if (response.statusCode == 200) {
        //If the call to the server was successful, parse the JSON
-      Map<String, dynamic> data=json.decode(response1.body);
+      Map<String, dynamic> data=json.decode(response.body);
+      // print(data);
+      overs=data['sport_event_status']['display_score'].toString();
+      score=data['sport_event_status']['period_scores'][0]['display_overs'].toString()+"/"+data['sport_event_status']['period_scores'][0]['allotted_overs'].toString();
+      runRate=data['sport_event_status']['run_rate'];
+      currentInning=data['sport_event_status']['current_inning'];
+      tossWonBy=teamName[data['sport_event_status']['toss_won_by']];
+      battingTeam=teamName[data['statistics']['innings']['currentInning']['batting_team']];
+      bowlingTeam=teamName[data['statistics']['innings']['currentInning']['bowling_team']];
+
+      setState(() {
+        overs=overs;
+        score=score;
+        runRate=runRate;
+        currentInning=currentInning;
+        tossWonBy=tossWonBy;
+        battingTeam=battingTeam;
+        bowlingTeam=bowlingTeam;
+      });
       // print(data['standings'][0]['groups'][0]['team_standings']);
       // LeaderBoardRow header=LeaderBoardRow.fromData("Team","Rank","M","W","D","L","PTS","NRR");
       // _LeaderBoardRows.add(header);
-      for(var i=0;i<data['standings'][0]['groups'][0]['team_standings'].length;i++){
-        LeaderBoardRow currRow=LeaderBoardRow.fromJSON(data['standings'][0]['groups'][0]['team_standings'][i]);
-        setState(() => _LeaderBoardRows.add(currRow));
-      }
+      // for(var i=0;i<data['standings'][0]['groups'][0]['team_standings'].length;i++){
+      //   LeaderBoardRow currRow=LeaderBoardRow.fromJSON(data['standings'][0]['groups'][0]['team_standings'][i]);
+      //   setState(() => _LeaderBoardRows.add(currRow));
+      // }
 
     } else {
        //If that call was not successful, throw an error.
       throw Exception('Failed to load post');
     }
-    //fetching world cup schedule
-    final response =
-        await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key=wggcfwq4abb33tg44sw33dtg'); 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> data=json.decode(response.body);
-      // print(data['sport_events']);
-      for(var i=0;i<data['sport_events'].length;i++){
-        var unique_id=data['sport_events'][i]['id'];
-        var date=data['sport_events'][i]['scheduled'].toString().split('T')[0];
-        var team1=data['sport_events'][i]['competitors'][0]['name'];
-        var team2=data['sport_events'][i]['competitors'][1]['name'];
-        var status=data['sport_events'][i]['status'];
-        var time=data['sport_events'][i]['scheduled'].toString().split('T')[1].split('+')[0];
-        var type=data['sport_events'][i]['tournament']['type'].toString().toUpperCase();
-        // (String id, String date, String time, String team1, String team2, String type, String status):
-        UpMatche currMatch=UpMatche.fromData(unique_id,date,time,team1,team2,type,status);
-        setState(() =>  _UpMatches.add(currMatch));
-      }
-    } else {
-       //If that call was not successful, throw an error.
-      throw Exception('Failed to load post');
-    }
-  }
-  void fetchLeaderboard() async{
-    final response =
-        await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/standings.json?api_key=wggcfwq4abb33tg44sw33dtg'); 
-    if (response.statusCode == 200) {
-       //If the call to the server was successful, parse the JSON
-      Map<String, dynamic> data=json.decode(response.body);
-      // print(data['standings'][0]['groups'][0]['team_standings']);
-      // LeaderBoardRow header=LeaderBoardRow.fromData("Team","Rank","M","W","D","L","PTS","NRR");
-      // _LeaderBoardRows.add(header);
-      for(var i=0;i<data['standings'][0]['groups'][0]['team_standings'].length;i++){
-        LeaderBoardRow currRow=LeaderBoardRow.fromJSON(data['standings'][0]['groups'][0]['team_standings'][i]);
-        setState(() => _LeaderBoardRows.add(currRow));
-      }
-
-    } else {
-       //If that call was not successful, throw an error.
-      throw Exception('Failed to load post');
-    }
-  }
-  
+  }  
   @override
   Widget build(BuildContext context) {
+    
     return Scaffold(
       backgroundColor: Color(0xFFe4e9ed),
       body: new DefaultTabController(
-        length: 3,
+        length: 2,
         child: new Scaffold(
           appBar: new AppBar(
             title: new Text('Main'),
@@ -131,88 +144,128 @@ class _MainScreenState extends State<MainScreen> {
             // ],
             bottom: new TabBar(
               tabs: [
+                new Tab(text: 'LIVE'),
                 new Tab(text: 'SCHEDULE'),
-                new Tab(text: 'LEADERBOARD'),
               ],
               indicatorColor: Colors.white,
             ),
           ),
           body: new TabBarView(
             children: [
+              // new Icon(Icons.access_alarm),
+              new Container(
+                child: new Column(
+                  children: <Widget>[
+                    new Container(
+                      padding: EdgeInsets.all(5.0),
+                      decoration: new BoxDecoration(
+                        boxShadow:[
+                          new BoxShadow(
+                            color: Colors.black,
+                            blurRadius: 3.0
+                          )
+                        ],
+                        color: Color.fromRGBO(230, 230, 230, 1.0)
+                      ),
+                      margin: EdgeInsets.all(15.0),
+                      child: new Row(
+                        children: <Widget>[
+                          new Container(
+                              child: new Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  new Text("Batting",style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold),),
+                                  new SizedBox(height: 10.0,),
+                                  new CircleAvatar(
+                                    backgroundImage: new AssetImage("assets/images/"+battingTeam.toLowerCase().replaceAll(' ','-')+".jpg"),
+                                    backgroundColor: Colors.red,
+                                    radius: 30.0,
+                                  ),
+                                  new SizedBox(height: 10.0,),
+                                  new Text(battingTeam.toUpperCase(),style: new TextStyle(fontSize: 13.0),)
+                                ],
+                              )
+                            ),
+                            new Expanded(
+                              child: new Container(
+                                      // decoration: new BoxDecoration(border: Border.all()),
+                                      padding: new EdgeInsets.all(8.0),
+                                      child: new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: <Widget>[
+                                          new Text("Current Inning: "+currentInning,style: new TextStyle(fontWeight: FontWeight.bold),),
+                                          new Text("Score: "+score,style: new TextStyle(fontWeight: FontWeight.bold),),
+                                          new Text("Overs: "+overs,style: new TextStyle(fontWeight: FontWeight.bold),),
+                                          new Text("*Toss Won By: "+tossWonBy,style: new TextStyle(fontSize: 10.0),),
+                                        ],
+                                      ),
+                                    ),
+                            ),
+                            new Container(
+                              child: new Column(
+                                children: <Widget>[
+                                  new Text("Bowling",style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold),),
+                                  new SizedBox(height: 10.0,),
+                                  new CircleAvatar(
+                                    backgroundImage: new AssetImage("assets/images/"+bowlingTeam.toLowerCase().replaceAll(' ','-')+".jpg"),
+                                    backgroundColor: Colors.red,
+                                    radius: 30.0,
+                                  ),
+                                  new SizedBox(height: 10.0,),
+                                  new Text(bowlingTeam.toUpperCase(),style: new TextStyle(fontSize: 13.0),)
+                                ],
+                              )
+                            ),
+                        ],
+                      ),
+                    ),
+                    new Row(
+                      
+                    ),
+                    new InkWell(
+                      onTap :(){
+                        if(index.contains(1)){
+                          index.remove(1);
+                        }
+                        else{
+                          index.add(1);
+                        }
+                        setState(() {
+                          index=index;
+                        });
+                      } ,
+                      child:new Heading("Inning 1")
+                    ),
+                    new Offstage(
+                      offstage: !index.contains(1),
+                      child: new Text("IN2data"),
+                    ),
+                    new InkWell(
+                      onTap :(){
+                        if(index.contains(2)){
+                          index.remove(2);
+                        }
+                        else{
+                          index.add(2);
+                        }
+                        setState(() {
+                          index=index;
+                        });
+                      } ,
+                      child:new Heading("Inning 2")
+                    ),
+                    new Offstage(
+                      offstage: !index.contains(2),
+                      child: new Text("IN2data"),
+                    ),
+                  ],
+                ),
+              ),
               new ListView.builder(
                 itemCount: _UpMatches.length,
                 itemBuilder: (context, index) => UpMatcheTile(_UpMatches[index]),
               ),
-              // new Icon(Icons.access_alarm),
-              new Container(
-                padding: new EdgeInsets.only(top: 20.0),
-                height: 44.0,
-                child: new Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    new Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        new Text("LEADERBOARD",style: new TextStyle(fontSize: 30),)
-                      ],
-                    ),
-                    new Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        new Text("-- WORLD CUP 2019 --",style: new TextStyle(fontSize: 15,),)
-                      ],
-                    ),
-                    new SizedBox(height: 10.0,),
-                    new Container(
-                      padding: new EdgeInsets.only(left:8.0),
-                      child: new Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          new Expanded(
-                            flex: 2,
-                            child: new Text("Rank"),
-                          ),
-                          new Expanded(
-                            flex: 3,
-                            child: new Text("Team"),
-                          ),
-                          new Expanded(
-                            flex: 1,
-                            child: new Text("M"),
-                          ),
-                          new Expanded(
-                            flex: 1,
-                            child: new Text("W"),
-                          ),
-                          new Expanded(
-                            flex: 1,
-                            child: new Text("L"),
-                          ),
-                          new Expanded(
-                            flex: 1,
-                            child: new Text("PTS"),
-                          ),
-                          new Expanded(
-                            flex: 2,
-                            child:new Text("NRR") ,
-                          )
-                        ],
-                      ),
-                    ),    
-                    new Divider(),
-                    new Expanded(//use Expanded to wrap list view in case of error for unbound height
-                      child:new ListView.builder(
-                        itemCount: _LeaderBoardRows.length,
-                        itemBuilder: (context, index) => LeaderBoardTile(_LeaderBoardRows[index]),
-                      ),
-                    ),
-                  ],
-                ),
-              )
             ],
           ),
           drawer: Drawer(
@@ -253,8 +306,27 @@ class _MainScreenState extends State<MainScreen> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                Navigator.pop(context);
-                Navigator.pushNamed(context, '/account');
+                 Navigator.pop(context);
+                var route = new MaterialPageRoute(
+                  builder: (BuildContext context) => 
+                    new MyTeam(),
+                );
+                Navigator.of(context).push(route);
+              },
+            ),
+            ListTile(
+              leading:Icon(Icons.home),
+              title: Text('Leaderboard'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                 Navigator.pop(context);
+                var route = new MaterialPageRoute(
+                  builder: (BuildContext context) => 
+                    new Leaderboard("sr:match:17517251"),
+                );
+                Navigator.of(context).push(route);
               },
             ),
             ListTile(
@@ -286,6 +358,30 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
         ),
+      ),
+    );
+  }
+}
+class Heading extends StatelessWidget{
+  String header;
+  Heading(String head){
+    header=head;
+  }
+  @override
+  Widget build(BuildContext context){
+    return new Container(
+      margin: EdgeInsets.all(10.0),
+      padding: EdgeInsets.all(10.0),
+      decoration: new BoxDecoration(
+        color: Colors.blue,
+        border: Border.all(),
+      ),
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          new Text(header,style: new TextStyle(fontSize: 20.0,color: Colors.white),),
+          new Icon(Icons.arrow_forward_ios,color: Colors.white,)
+        ],
       ),
     );
   }
