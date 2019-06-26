@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
 import '../../repository/upcoming_matches_repository.dart';
 import '../../models/upcoming_match.dart';
 import '../../models/upMatchTile.dart';
@@ -31,9 +32,9 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState(){
     super.initState();
-    listenForUpMatches();
+    // listenForUpMatches();
     //fetchLeaderboard();
-    // fetch();
+    // fetch2();
     overs="23.1/50";
     score="130/1";
     runRate="6.67";
@@ -60,30 +61,34 @@ class _MainScreenState extends State<MainScreen> {
     print(prefs.getString('fav_team'));
     
   }
-  // void fetch() async{
-  //   //fetching world cup schedule
-  //   final response =
-  //       await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key='+key); 
-  //   if (response.statusCode == 200) {
-  //     Map<String, dynamic> data=json.decode(response.body);
-  //     // print(data['sport_events']);
-  //     for(var i=0;i<data['sport_events'].length;i++){
-  //       var unique_id=data['sport_events'][i]['id'];
-  //       var date=data['sport_events'][i]['scheduled'].toString().split('T')[0];
-  //       var team1=data['sport_events'][i]['competitors'][0]['name'];
-  //       var team2=data['sport_events'][i]['competitors'][1]['name'];
-  //       var status=data['sport_events'][i]['status'];
-  //       var time=data['sport_events'][i]['scheduled'].toString().split('T')[1].split('+')[0];
-  //       var type=data['sport_events'][i]['tournament']['type'].toString().toUpperCase();
-  //       // (String id, String date, String time, String team1, String team2, String type, String status):
-  //       UpMatche currMatch=UpMatche.fromData(unique_id,date,time,team1,team2,type,status);
-  //       setState(() =>  _UpMatches.add(currMatch));
-  //     }
-  //   } else {
-  //      //If that call was not successful, throw an error.
-  //     throw Exception('Failed to load post');
-  //   }
-  // }
+  void fetch2() async{
+    //fetching world cup schedule
+    final response =
+        await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key='+key); 
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data=json.decode(response.body);
+      // print(data['sport_events']);
+      for(var i=0;i<data['sport_events'].length;i++){
+        var unique_id=data['sport_events'][i]['id'];
+        var date=data['sport_events'][i]['scheduled'].toString().split('T')[0];
+        var team1=data['sport_events'][i]['competitors'][0]['name'];
+        var team2=data['sport_events'][i]['competitors'][1]['name'];
+        var status=data['sport_events'][i]['status'];
+        var time=data['sport_events'][i]['scheduled'].toString().split('T')[1].split('+')[0];
+        var type=data['sport_events'][i]['tournament']['type'].toString().toUpperCase();
+        // (String id, String date, String time, String team1, String team2, String type, String status):
+        UpMatche currMatch=UpMatche.fromData(unique_id,date,time,team1,team2,type,status);
+        setState(() =>  _UpMatches.add(currMatch));
+      }
+    } else {
+       //If that call was not successful, throw an error.
+      throw Exception('Failed to load post');
+    }
+    fetch("sr:match:17517265");
+    // Timer.periodic(Duration(seconds: 3), (timer){
+    //   fetch("sr:match:17517265");
+    // }); 
+  }
   void fetch(String mId) async{
     final response =
         await http.get('https://api.sportradar.com/cricket-t2/en/matches/'+ mId +'/timeline/delta.json?api_key='+key); 
@@ -91,14 +96,16 @@ class _MainScreenState extends State<MainScreen> {
        //If the call to the server was successful, parse the JSON
       Map<String, dynamic> data=json.decode(response.body);
       // print(data);
-      overs=data['sport_event_status']['display_score'].toString();
-      score=data['sport_event_status']['period_scores'][0]['display_overs'].toString()+"/"+data['sport_event_status']['period_scores'][0]['allotted_overs'].toString();
-      runRate=data['sport_event_status']['run_rate'];
-      currentInning=data['sport_event_status']['current_inning'];
-      tossWonBy=teamName[data['sport_event_status']['toss_won_by']];
-      battingTeam=teamName[data['statistics']['innings']['currentInning']['batting_team']];
-      bowlingTeam=teamName[data['statistics']['innings']['currentInning']['bowling_team']];
-
+      score=data['sport_event_status']['display_score'].toString();
+      overs=data['sport_event_status']['period_scores'][0]['display_overs'].toString()+"/"+data['sport_event_status']['period_scores'][0]['allotted_overs'].toString();
+      runRate=data['sport_event_status']['run_rate'].toString();
+      int inning=data['sport_event_status']['current_inning']-1;
+      currentInning=data['sport_event_status']['current_inning'].toString();
+      tossWonBy=teamName[data['sport_event_status']['toss_won_by']].toString();
+      battingTeam=teamName[data['statistics']['innings'][inning]['batting_team']].toString();
+      bowlingTeam=teamName[data['statistics']['innings'][inning]['bowling_team']].toString();
+      // print(data['statistics']['innings']);
+      // print(teamName[data['statistics']['innings'][]]);
       setState(() {
         overs=overs;
         score=score;
@@ -197,6 +204,7 @@ class _MainScreenState extends State<MainScreen> {
                                           new Text("Current Inning: "+currentInning,style: new TextStyle(fontWeight: FontWeight.bold),),
                                           new Text("Score: "+score,style: new TextStyle(fontWeight: FontWeight.bold),),
                                           new Text("Overs: "+overs,style: new TextStyle(fontWeight: FontWeight.bold),),
+                                          new Text("Run Rate: "+runRate,style: new TextStyle(fontWeight: FontWeight.bold),),
                                           new Text("*Toss Won By: "+tossWonBy,style: new TextStyle(fontSize: 10.0),),
                                         ],
                                       ),
@@ -277,8 +285,8 @@ class _MainScreenState extends State<MainScreen> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: new Text("Anurag Barfa"),
-              accountEmail: new Text("anuragbarfa64@gmail.com"),
+              accountName: new Text("Test Test"),
+              accountEmail: new Text("test@gmail.com"),
               currentAccountPicture: new CircleAvatar(
                 backgroundImage: new AssetImage("assets/images/profile.jpg"),
               ),

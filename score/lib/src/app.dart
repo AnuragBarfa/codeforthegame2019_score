@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/main.dart';
 import 'screens/match_detail.dart';
+import 'screens/my_team.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 class MyApp extends StatelessWidget {
@@ -12,7 +13,8 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/main': (BuildContext context) => new MainScreen(),
       },
-      home: new MainScreen(),
+      home: new MyTeam(),
+      // home: new MainScreen(),
     );
   }
 }
