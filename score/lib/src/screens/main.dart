@@ -6,7 +6,7 @@ import '../../repository/upcoming_matches_repository.dart';
 import '../../models/upcoming_match.dart';
 import '../../models/upMatchTile.dart';
 import '../../models/leaderBoardTile.dart';
-import '../../models/leaderBoardRow.dart';
+import '../../models/inning.dart';
 import '../screens/setting.dart';
 import '../screens/my_team.dart';
 import '../screens/leaderboard.dart';
@@ -29,12 +29,15 @@ class _MainScreenState extends State<MainScreen> {
   Map<String,String> teamName;
   Set<int> index;
   List<UpMatche> _UpMatches = <UpMatche>[];
+  Inning inning1;
+  Inning inning2;
   @override
   void initState(){
     super.initState();
     // listenForUpMatches();
     //fetchLeaderboard();
     // fetch2();
+    fetch("sr:match:17517265");
     overs="23.1/50";
     score="130/1";
     runRate="6.67";
@@ -95,7 +98,8 @@ class _MainScreenState extends State<MainScreen> {
     if (response.statusCode == 200) {
        //If the call to the server was successful, parse the JSON
       Map<String, dynamic> data=json.decode(response.body);
-      // print(data);
+      
+      //Variable showing live score card
       score=data['sport_event_status']['display_score'].toString();
       overs=data['sport_event_status']['period_scores'][0]['display_overs'].toString()+"/"+data['sport_event_status']['period_scores'][0]['allotted_overs'].toString();
       runRate=data['sport_event_status']['run_rate'].toString();
@@ -104,8 +108,49 @@ class _MainScreenState extends State<MainScreen> {
       tossWonBy=teamName[data['sport_event_status']['toss_won_by']].toString();
       battingTeam=teamName[data['statistics']['innings'][inning]['batting_team']].toString();
       bowlingTeam=teamName[data['statistics']['innings'][inning]['bowling_team']].toString();
-      // print(data['statistics']['innings']);
-      // print(teamName[data['statistics']['innings'][]]);
+      print(battingTeam);
+      print(bowlingTeam);
+      //variables for innings
+      // for(var i=0;i<2;i++){
+      //   String inning_number=data['statistics']['innings'][i]['number'].toString();
+      //   String bowl_team=data['statistics']['innings'][i]['bowling_team'].toString();
+      //   String bat_team=data['statistics']['innings'][i]['batting_team'].toString();
+      //   List<Over> overs= <Over>[];
+      //   for(var j=0;j<data['statistics']['innings'][i]['number']['overs'].length;j++){
+      //     String no=data['statistics']['innings'][i]['number']['overs'][j]['number'].toString();
+      //     String run=data['statistics']['innings'][i]['number']['overs'][j]['runs'].toString();
+      //     String wick=data['statistics']['innings'][i]['number']['overs'][j]['wickets'].toString();
+      //     if(no==null)no="0";
+      //     if(run==null)run="0";
+      //     if(wick==null)wick="0";
+      //     Over curr_over=Over.fromData(no, run, wick);
+      //     overs.add(curr_over);
+      //   }
+      //   String over=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['overs'].toString();
+      //   String wick=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['wickets'].toString();
+      //   String maiden=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['maidens'].toString();
+      //   List<Bowler> bolwer=<Bowler>[];
+      //   for(var j=0;j<data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'].length;j++){
+      //     String name=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'][j]['name'].toString();
+      //     String runs=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'][j]['statistics']['runs_conceded'].toString();
+      //     String overs=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'][j]['statistics']['overs_bowled'].toString();
+      //     String wick=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'][j]['statistics']['maidens'].toString();
+      //     Bowler bowl=Bowler.fromData(name, runs, overs, wick);
+      //     bolwer.add(bowl);
+      //   }
+      //   Bowling bowling=Bowling.fromData(over, wick, maiden, bolwer);
+      //   String run=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['batting']['runs'].toString();
+      //   String run_rate=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['batting']['run_rate'].toString();
+      //   String balls_faced=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['batting']['balls_faced'].toString();
+      //   Batting batting=Batting.fromData(run, run_rate, balls_faced);
+      //   if(i==0){
+      //     inning1=Inning.fromData(inning_number, bat_team, bowl_team, overs, bowling, batting);
+      //   }
+      //   if(i==1){
+      //     inning2=Inning.fromData(inning_number, bat_team, bowl_team, overs, bowling, batting);
+      //   }
+      // }
+      
       setState(() {
         overs=overs;
         score=score;
@@ -161,7 +206,8 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               // new Icon(Icons.access_alarm),
               new Container(
-                child: new Column(
+                child: new SingleChildScrollView(
+                  child: new Column(
                   children: <Widget>[
                     new Container(
                       padding: EdgeInsets.all(5.0),
@@ -247,7 +293,18 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     new Offstage(
                       offstage: !index.contains(1),
-                      child: new Text("IN2data"),
+                      child: new Container(
+                        height: 400,
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            new Expanded(//use Expanded to wrap list view in case of error for unbound height
+                              child: new Text("fghjk"),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                     new InkWell(
                       onTap :(){
@@ -265,10 +322,22 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     new Offstage(
                       offstage: !index.contains(2),
-                      child: new Text("IN2data"),
+                      child: new Container(
+                        height: 400,
+                        child: new Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            new Expanded(//use Expanded to wrap list view in case of error for unbound height
+                              child: new Text("fghjk"),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
+                )
               ),
               new ListView.builder(
                 itemCount: _UpMatches.length,

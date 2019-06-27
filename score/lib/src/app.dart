@@ -13,8 +13,8 @@ class MyApp extends StatelessWidget {
       routes: <String, WidgetBuilder>{
         '/main': (BuildContext context) => new MainScreen(),
       },
-      home: new MyTeam(),
-      // home: new MainScreen(),
+      // home: new MyTeam(),
+      home: new MainScreen(),
     );
   }
 }
