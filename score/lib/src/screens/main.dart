@@ -111,46 +111,53 @@ class _MainScreenState extends State<MainScreen> {
       print(battingTeam);
       print(bowlingTeam);
       //variables for innings
-      // for(var i=0;i<2;i++){
-      //   String inning_number=data['statistics']['innings'][i]['number'].toString();
-      //   String bowl_team=data['statistics']['innings'][i]['bowling_team'].toString();
-      //   String bat_team=data['statistics']['innings'][i]['batting_team'].toString();
-      //   List<Over> overs= <Over>[];
-      //   for(var j=0;j<data['statistics']['innings'][i]['number']['overs'].length;j++){
-      //     String no=data['statistics']['innings'][i]['number']['overs'][j]['number'].toString();
-      //     String run=data['statistics']['innings'][i]['number']['overs'][j]['runs'].toString();
-      //     String wick=data['statistics']['innings'][i]['number']['overs'][j]['wickets'].toString();
-      //     if(no==null)no="0";
-      //     if(run==null)run="0";
-      //     if(wick==null)wick="0";
-      //     Over curr_over=Over.fromData(no, run, wick);
-      //     overs.add(curr_over);
-      //   }
-      //   String over=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['overs'].toString();
-      //   String wick=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['wickets'].toString();
-      //   String maiden=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['maidens'].toString();
-      //   List<Bowler> bolwer=<Bowler>[];
-      //   for(var j=0;j<data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'].length;j++){
-      //     String name=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'][j]['name'].toString();
-      //     String runs=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'][j]['statistics']['runs_conceded'].toString();
-      //     String overs=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'][j]['statistics']['overs_bowled'].toString();
-      //     String wick=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['bowling']['players'][j]['statistics']['maidens'].toString();
-      //     Bowler bowl=Bowler.fromData(name, runs, overs, wick);
-      //     bolwer.add(bowl);
-      //   }
-      //   Bowling bowling=Bowling.fromData(over, wick, maiden, bolwer);
-      //   String run=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['batting']['runs'].toString();
-      //   String run_rate=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['batting']['run_rate'].toString();
-      //   String balls_faced=data['statistics']['innings'][i]['number']['teams'][0]['statistics']['batting']['balls_faced'].toString();
-      //   Batting batting=Batting.fromData(run, run_rate, balls_faced);
-      //   if(i==0){
-      //     inning1=Inning.fromData(inning_number, bat_team, bowl_team, overs, bowling, batting);
-      //   }
-      //   if(i==1){
-      //     inning2=Inning.fromData(inning_number, bat_team, bowl_team, overs, bowling, batting);
-      //   }
-      // }
-      
+      for(var i=0;i<2;i++){
+        String inning_number=data['statistics']['innings'][i]['number'].toString();
+        String bowl_team=data['statistics']['innings'][i]['bowling_team'].toString();
+        String bat_team=data['statistics']['innings'][i]['batting_team'].toString();
+        List<Over> inn_overs= <Over>[];
+        for(var j=0;j<data['statistics']['innings'][i]['overs'].length;j++){
+          String no=data['statistics']['innings'][i]['overs'][j]['number'].toString();
+          String run=data['statistics']['innings'][i]['overs'][j]['runs'].toString();
+          String wick=data['statistics']['innings'][i]['overs'][j]['wickets'].toString();
+          if(no==null)no="0";
+          if(run==null)run="0";
+          if(wick==null)wick="0";
+          Over curr_over=Over.fromData(no, run, wick);
+          inn_overs.add(curr_over);
+        }
+        int batting_index=0;
+        int bowling_index=1;
+        if(data['statistics']['innings'][i]['teams'][1]['statistics']['bowling']==null){
+          batting_index=1;
+          bowling_index=0;
+        }
+        String over=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['overs'].toString();
+        String wick=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['wickets'].toString();
+        String maiden=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['maidens'].toString();
+        List<Bowler> bolwer=<Bowler>[];
+        for(var j=0;j<data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'].length;j++){
+          String name=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['name'].toString();
+          String runs=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['runs_conceded'].toString();
+          String overs_bowled=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['overs_bowled'].toString();
+          String wick=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['maidens'].toString();
+          Bowler bowl=Bowler.fromData(name, runs, overs_bowled, wick);
+          bolwer.add(bowl);
+        }
+        Bowling bowling=Bowling.fromData(over, wick, maiden, bolwer);
+        String run_scored=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['runs'].toString();
+        String run_rate=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['run_rate'].toString();
+        String balls_faced=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['balls_faced'].toString();
+        Batting batting=Batting.fromData(run_scored, run_rate, balls_faced);
+        if(i==0){
+          inning1=Inning.fromData(inning_number, bat_team, bowl_team, inn_overs, bowling, batting);
+        }
+        if(i==1){
+          inning2=Inning.fromData(inning_number, bat_team, bowl_team, inn_overs, bowling, batting);
+        }
+      }
+      print(inning1);
+      print(inning2);
       setState(() {
         overs=overs;
         score=score;
@@ -159,6 +166,8 @@ class _MainScreenState extends State<MainScreen> {
         tossWonBy=tossWonBy;
         battingTeam=battingTeam;
         bowlingTeam=bowlingTeam;
+        inning1=inning1;
+        inning2=inning2;
       });
       // print(data['standings'][0]['groups'][0]['team_standings']);
       // LeaderBoardRow header=LeaderBoardRow.fromData("Team","Rank","M","W","D","L","PTS","NRR");
@@ -300,7 +309,8 @@ class _MainScreenState extends State<MainScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             new Expanded(//use Expanded to wrap list view in case of error for unbound height
-                              child: new Text("fghjk"),
+                              // child: new Text("data"),
+                              child: new InningTile(inning1),
                             ),
                           ],
                         ),
@@ -329,7 +339,8 @@ class _MainScreenState extends State<MainScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             new Expanded(//use Expanded to wrap list view in case of error for unbound height
-                              child: new Text("fghjk"),
+                              child: new Text("data"),
+                              // child: new InningTile(inning2),
                             ),
                           ],
                         ),
@@ -458,6 +469,73 @@ class Heading extends StatelessWidget{
         children: <Widget>[
           new Text(header,style: new TextStyle(fontSize: 20.0,color: Colors.white),),
           new Icon(Icons.arrow_forward_ios,color: Colors.white,)
+        ],
+      ),
+    );
+  }
+}
+class InningTile extends StatelessWidget{
+  Inning _Inning;
+  InningTile(Inning inn){
+    _Inning=inn;
+  }
+  @override
+  Widget build(BuildContext context){
+    return new Container(
+      height: 400,
+      child: _Inning!=null?new Container(
+        height: 400,
+        child: new Column(
+          children: <Widget>[
+            new Row(
+
+            ),
+            new Row(
+              children: <Widget>[
+                new Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    new Row(
+                      children: <Widget>[
+                        new Text("Number"),
+                        new Text("Runs"),
+                        new Text("Wickets")
+                      ],
+                    ),
+                    new Expanded(
+                      child: new ListView.builder(
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        itemCount: _Inning.overs.length,
+                        itemBuilder: (context, index) => OverTile(_Inning.overs[index]),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ):new Container(
+        height: 0,
+      ),
+    );
+  }
+}
+class OverTile extends StatelessWidget{
+  Over _Over;
+  OverTile(Over over){
+    _Over=over;
+  }
+  @override
+  Widget build(BuildContext context){
+    return new Container(
+      child: new Row(
+        children: <Widget>[
+          new Text(_Over.number),
+          new Text(_Over.runs),
+          new Text(_Over.wickets)
         ],
       ),
     );
