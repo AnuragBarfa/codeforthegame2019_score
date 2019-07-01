@@ -19,6 +19,7 @@ class SettingState extends State<Setting> {
   final _formKey = GlobalKey<FormState>();
   Map<String,String> teamName;
   List<DropdownMenuItem<String> > Options;
+  BuildContext _scaffoldContext;
   @override 
   void initState() {
     super.initState();
@@ -47,16 +48,8 @@ class SettingState extends State<Setting> {
     });
   }
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: new AppBar(
-        automaticallyImplyLeading: true,
-        title: new Text("Settings"),
-        leading: IconButton(icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context,false),
-        )
-      ),
-      body: new Center(
+  Widget build(BuildContext context){
+    Widget body = new Center(
         child: new Container(
           padding: EdgeInsets.all(10.0),
           child: new Column(
@@ -102,6 +95,10 @@ class SettingState extends State<Setting> {
                             // If the form is valid, display a Snackbar.
                             SharedPreferences prefs = await SharedPreferences.getInstance();
                             prefs.setString('fav_team', dropDownValue);
+                            Scaffold.of(_scaffoldContext).showSnackBar(new SnackBar(
+                              content: Text('Team Name Saved'),
+                              duration: Duration(seconds: 1),
+                            ));
                             // print("inside");
                             // print(dropDownValue);
                             // // Scaffold.of(context)
@@ -117,6 +114,20 @@ class SettingState extends State<Setting> {
             ],
           ),
         ),
+      );
+    return Scaffold(
+      appBar: new AppBar(
+        automaticallyImplyLeading: true,
+        title: new Text("Settings"),
+        leading: IconButton(icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context,false),
+        )
+      ),
+      body: new Builder(
+        builder: (BuildContext context){
+          _scaffoldContext = context;
+          return body;
+        },
       ),
       backgroundColor: Color(0xFFe4e9ed),
     );

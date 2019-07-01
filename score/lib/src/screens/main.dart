@@ -5,13 +5,14 @@ import 'dart:async';
 import '../../repository/upcoming_matches_repository.dart';
 import '../../models/upcoming_match.dart';
 import '../../models/upMatchTile.dart';
-import '../../models/leaderBoardTile.dart';
+import '../../models/inningTile.dart';
 import '../../models/inning.dart';
 import '../screens/setting.dart';
 import '../screens/my_team.dart';
 import '../screens/leaderboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 String key="mw23cr5x274anr3xx9g6yugj";
+Map<String,String> teamName;
 class MainScreen extends StatefulWidget {
   @override
   _MainScreenState createState() => _MainScreenState();
@@ -26,7 +27,6 @@ class _MainScreenState extends State<MainScreen> {
   String tossWonBy;
   String battingTeam;
   String bowlingTeam;
-  Map<String,String> teamName;
   Set<int> index;
   List<UpMatche> _UpMatches = <UpMatche>[];
   Inning inning1;
@@ -36,8 +36,9 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     // listenForUpMatches();
     //fetchLeaderboard();
-    // fetch2();
-    fetch("sr:match:17517265");
+    fetch2();
+    
+    // fetch("sr:match:17517265");
     overs="23.1/50";
     score="130/1";
     runRate="6.67";
@@ -87,7 +88,29 @@ class _MainScreenState extends State<MainScreen> {
        //If that call was not successful, throw an error.
       throw Exception('Failed to load post');
     }
-    fetch("sr:match:17517265");
+    DateTime now = new DateTime.now();
+    String year=now.year.toString();
+    String month=now.month.toString().length==1?"0"+now.month.toString():now.month.toString();
+    String day=now.day.toString().length==1?"0"+now.day.toString():now.day.toString();
+    String date=year+"-"+month+"-"+day;
+    String liveMatchId="No";
+    final response1 =
+        await http.get('https://api.sportradar.com/cricket-t2/en/schedules/'+date+'/schedule.json?api_key='+key); 
+    if (response1.statusCode == 200) {
+      Map<String, dynamic> data=json.decode(response1.body);
+      for(var i=0;i<data['sport_events'].length;i++){
+        if(data['sport_events'][i]['season']['name']=="World Cup 2019"){
+          liveMatchId=data['sport_events'][i]['id'];
+        }
+      }
+    } else {
+       //If that call was not successful, throw an error.
+      throw Exception('Failed to load post');
+    }
+    fetch(liveMatchId);
+    // fetch(liveMatchId);
+    // final response1 =
+    //     await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key='+key);
     // Timer.periodic(Duration(seconds: 3), (timer){
     //   fetch("sr:match:17517265");
     // }); 
@@ -120,9 +143,9 @@ class _MainScreenState extends State<MainScreen> {
           String no=data['statistics']['innings'][i]['overs'][j]['number'].toString();
           String run=data['statistics']['innings'][i]['overs'][j]['runs'].toString();
           String wick=data['statistics']['innings'][i]['overs'][j]['wickets'].toString();
-          if(no==null)no="0";
-          if(run==null)run="0";
-          if(wick==null)wick="0";
+          if(no=="null")no="0";
+          if(run=="null")run="0";
+          if(wick=="null")wick="0";
           Over curr_over=Over.fromData(no, run, wick);
           inn_overs.add(curr_over);
         }
@@ -141,6 +164,9 @@ class _MainScreenState extends State<MainScreen> {
           String runs=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['runs_conceded'].toString();
           String overs_bowled=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['overs_bowled'].toString();
           String wick=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['maidens'].toString();
+          if(wick=="null")wick="0";
+          if(runs=="null")runs="0";
+          if(over=="null")over="0";
           Bowler bowl=Bowler.fromData(name, runs, overs_bowled, wick);
           bolwer.add(bowl);
         }
@@ -256,7 +282,7 @@ class _MainScreenState extends State<MainScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: <Widget>[
-                                          new Text("Current Inning: "+currentInning,style: new TextStyle(fontWeight: FontWeight.bold),),
+                                          new Text("Inning: "+currentInning,style: new TextStyle(fontWeight: FontWeight.bold),),
                                           new Text("Score: "+score,style: new TextStyle(fontWeight: FontWeight.bold),),
                                           new Text("Overs: "+overs,style: new TextStyle(fontWeight: FontWeight.bold),),
                                           new Text("Run Rate: "+runRate,style: new TextStyle(fontWeight: FontWeight.bold),),
@@ -283,9 +309,6 @@ class _MainScreenState extends State<MainScreen> {
                         ],
                       ),
                     ),
-                    new Row(
-                      
-                    ),
                     new InkWell(
                       onTap :(){
                         if(index.contains(1)){
@@ -302,19 +325,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     new Offstage(
                       offstage: !index.contains(1),
-                      child: new Container(
-                        height: 400,
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            new Expanded(//use Expanded to wrap list view in case of error for unbound height
-                              // child: new Text("data"),
-                              child: new InningTile(inning1),
-                            ),
-                          ],
-                        ),
-                      ),
+                      child: new InningTile(inning1),
                     ),
                     new InkWell(
                       onTap :(){
@@ -332,19 +343,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                     new Offstage(
                       offstage: !index.contains(2),
-                      child: new Container(
-                        height: 400,
-                        child: new Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            new Expanded(//use Expanded to wrap list view in case of error for unbound height
-                              child: new Text("data"),
-                              // child: new InningTile(inning2),
-                            ),
-                          ],
-                        ),
-                      ),
+                      child: new InningTile(inning2),
                     ),
                   ],
                 ),
@@ -469,73 +468,6 @@ class Heading extends StatelessWidget{
         children: <Widget>[
           new Text(header,style: new TextStyle(fontSize: 20.0,color: Colors.white),),
           new Icon(Icons.arrow_forward_ios,color: Colors.white,)
-        ],
-      ),
-    );
-  }
-}
-class InningTile extends StatelessWidget{
-  Inning _Inning;
-  InningTile(Inning inn){
-    _Inning=inn;
-  }
-  @override
-  Widget build(BuildContext context){
-    return new Container(
-      height: 400,
-      child: _Inning!=null?new Container(
-        height: 400,
-        child: new Column(
-          children: <Widget>[
-            new Row(
-
-            ),
-            new Row(
-              children: <Widget>[
-                new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    new Row(
-                      children: <Widget>[
-                        new Text("Number"),
-                        new Text("Runs"),
-                        new Text("Wickets")
-                      ],
-                    ),
-                    new Expanded(
-                      child: new ListView.builder(
-                        shrinkWrap: true,
-                        physics: ScrollPhysics(),
-                        itemCount: _Inning.overs.length,
-                        itemBuilder: (context, index) => OverTile(_Inning.overs[index]),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-      ):new Container(
-        height: 0,
-      ),
-    );
-  }
-}
-class OverTile extends StatelessWidget{
-  Over _Over;
-  OverTile(Over over){
-    _Over=over;
-  }
-  @override
-  Widget build(BuildContext context){
-    return new Container(
-      child: new Row(
-        children: <Widget>[
-          new Text(_Over.number),
-          new Text(_Over.runs),
-          new Text(_Over.wickets)
         ],
       ),
     );

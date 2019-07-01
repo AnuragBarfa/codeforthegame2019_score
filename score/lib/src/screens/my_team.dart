@@ -57,7 +57,6 @@ class MyTeamState extends State<MyTeam> {
       if (response.statusCode == 200) {
         //If the call to the server was successful, parse the JSON
         Map<String, dynamic> data=json.decode(response.body);
-        print(data);
         for(var i=0;i<data['results'].length;i++){
           String unique_id=data['results'][i]['sport_event']['id'];
           String date=data['results'][i]['sport_event']['scheduled'].toString().split('T')[0];
