@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/main.dart';
 import 'screens/setting.dart';
 import 'screens/my_team.dart';
+import 'screens/leaderboard.dart';
 import 'screens/match_detail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';

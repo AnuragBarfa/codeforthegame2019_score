@@ -4,28 +4,38 @@ import 'dart:convert';
 import 'dart:async';
 import '../../models/leaderBoardTile.dart';
 import '../../models/leaderBoardRow.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 String key="mw23cr5x274anr3xx9g6yugj";
+Map<String,String> teamName;
 class Leaderboard extends StatefulWidget {  
-  String matchId;
-  Leaderboard(String mId){
-    matchId=mId;
-  }
   @override
-  _LeaderboardState createState() => _LeaderboardState(this.matchId);
+  _LeaderboardState createState() => _LeaderboardState();
 }
 
 class _LeaderboardState extends State<Leaderboard> {
   List<LeaderBoardRow> _LeaderBoardRows = <LeaderBoardRow>[];
-  String matchId;
-  _LeaderboardState(String mId){
-    matchId=mId;
-  }
+  String myTeam="Chose Your Team";
   @override
   void initState() {
     super.initState();
+    teamName = <String, String>{};
+    teamName["sr:competitor:142708"]="South Africa";
+    teamName["sr:competitor:142690"]="Australia";
+    teamName["sr:competitor:107205"]="England";
+    teamName["sr:competitor:142702"]="New Zealand";
+    teamName["sr:competitor:107203"]="India";
+    teamName["sr:competitor:142704"]="Pakistan";
+    teamName["sr:competitor:142710"]="Sri Lanka";
+    teamName["sr:competitor:142692"]="Bangladesh";
+    teamName["sr:competitor:142714"]="West Indies";
+    teamName["sr:competitor:142688"]="Afghanistan";
     fetch();
   }
   void fetch() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    this.myTeam=prefs.getString('fav_team');
     final response =
         await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/standings.json?api_key='+key); 
     if (response.statusCode == 200) {
@@ -36,7 +46,10 @@ class _LeaderboardState extends State<Leaderboard> {
       // _LeaderBoardRows.add(header);
       for(var i=0;i<data['standings'][0]['groups'][0]['team_standings'].length;i++){
         LeaderBoardRow currRow=LeaderBoardRow.fromJSON(data['standings'][0]['groups'][0]['team_standings'][i]);
-        setState(() => _LeaderBoardRows.add(currRow));
+        setState(() {
+           _LeaderBoardRows.add(currRow);
+          myTeam=myTeam;
+        });
       }
 
     } else {
@@ -46,7 +59,6 @@ class _LeaderboardState extends State<Leaderboard> {
   }
   @override
   Widget build(BuildContext context) {
-    print(this.matchId);
     return Scaffold(
       appBar: new AppBar(
         automaticallyImplyLeading: true,
@@ -115,12 +127,18 @@ class _LeaderboardState extends State<Leaderboard> {
                 ),
               ),    
               new Divider(),
-              new Expanded(//use Expanded to wrap list view in case of error for unbound height
-                child:new ListView.builder(
-                  itemCount: _LeaderBoardRows.length,
-                  itemBuilder: (context, index) => LeaderBoardTile(_LeaderBoardRows[index]),
+              new Container(
+                child: (_LeaderBoardRows!=null)?new Expanded(//use Expanded to wrap list view in case of error for unbound height
+                  child:new ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    itemCount: _LeaderBoardRows.length,
+                    itemBuilder: (context, index) => LeaderBoardTile(_LeaderBoardRows[index],teamName[this.myTeam]),
+                  ),
+                ):new SpinKitThreeBounce(
+                  color: Colors.white,
+                  size: 30.0,
                 ),
-              ),
+              ), 
             ],
           ),
         )

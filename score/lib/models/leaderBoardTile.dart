@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import '../models/leaderBoardRow.dart';
 class LeaderBoardTile extends StatelessWidget{
   final LeaderBoardRow _LeaderBoardRow;
-  LeaderBoardTile(this._LeaderBoardRow);
+  final String myTeam;
+  LeaderBoardTile(this._LeaderBoardRow,this.myTeam);
   @override 
   Widget build(BuildContext context)=>Column(
     children: <Widget>[ 
       new Container(
           margin: new EdgeInsets.all(10.0),
           decoration: new BoxDecoration(
-            color: Colors.white
+            color: (this.myTeam==_LeaderBoardRow.name)?Colors.teal[100]:Colors.white,
           ),
           alignment: AlignmentDirectional(0.0, 0.0),
           child: Container(

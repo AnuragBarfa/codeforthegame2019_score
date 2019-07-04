@@ -11,6 +11,7 @@ import '../screens/setting.dart';
 import '../screens/my_team.dart';
 import '../screens/leaderboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 String key="mw23cr5x274anr3xx9g6yugj";
 Map<String,String> teamName;
 class MainScreen extends StatefulWidget {
@@ -43,9 +44,9 @@ class _MainScreenState extends State<MainScreen> {
     score="130/1";
     runRate="6.67";
     currentInning="1";
-    tossWonBy="South Africa";
-    battingTeam="South Africa";
-    bowlingTeam="South Africa";
+    tossWonBy="team1";
+    battingTeam="team1";
+    bowlingTeam="team2";
     teamName = <String, String>{};
     teamName["sr:competitor:142708"]="South Africa";
     teamName["sr:competitor:142690"]="Australia";
@@ -241,7 +242,7 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               // new Icon(Icons.access_alarm),
               new Container(
-                child: new SingleChildScrollView(
+                child:(battingTeam!="team1")?new SingleChildScrollView(
                   child: new Column(
                   children: <Widget>[
                     new Container(
@@ -347,9 +348,15 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ],
                 ),
+                ):new Center(
+                  child: new SpinKitFadingCircle(
+                    color: Colors.blue,
+                    size: 50.0,
+                  ),
                 )
               ),
               new ListView.builder(
+                physics: BouncingScrollPhysics(),
                 itemCount: _UpMatches.length,
                 itemBuilder: (context, index) => UpMatcheTile(_UpMatches[index]),
               ),
@@ -408,10 +415,10 @@ class _MainScreenState extends State<MainScreen> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                 Navigator.pop(context);
+                Navigator.pop(context);
                 var route = new MaterialPageRoute(
                   builder: (BuildContext context) => 
-                    new Leaderboard("sr:match:17517251"),
+                    new Leaderboard(),
                 );
                 Navigator.of(context).push(route);
               },

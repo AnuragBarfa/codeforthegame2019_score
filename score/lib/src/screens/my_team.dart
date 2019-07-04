@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../models/result.dart';
+import '../screens/leaderboard.dart';
+
 String key="mw23cr5x274anr3xx9g6yugj";
 // Create a Form widget.
 class MyTeam extends StatefulWidget {
@@ -86,7 +88,6 @@ class MyTeamState extends State<MyTeam> {
       if (response2.statusCode == 200) {
         //If the call to the server was successful, parse the JSON
         Map<String, dynamic> data=json.decode(response2.body);
-        print(data);
         for(var i=0;i<data['players'].length;i++){
           String unique_id=data['players'][i]['id'];
           String name=data['players'][i]['name'];
@@ -112,13 +113,25 @@ class MyTeamState extends State<MyTeam> {
       ),
       body: new Container(
         child: new Container(
-          padding: EdgeInsets.all(10.0),
+          
           child: (teamValue!="Chose Your Team")?SingleChildScrollView(
             child: new Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              new Text((teamName[teamValue]==null)?"Your Team":teamName[teamValue]),
+              new Text((teamName[teamValue]==null)?"Your Team":"Your Team: "+teamName[teamValue],style: new TextStyle(fontSize: 20),),
+              new SizedBox(height: 10.0,),
+              new InkWell(
+                onTap: (){
+                    var route = new MaterialPageRoute(
+                      builder: (BuildContext context) => 
+                        new Leaderboard(),
+                    );
+                    Navigator.of(context).push(route);
+                },
+                child: new Text("See "+teamName[teamValue]+" on Leaderboard",style: new TextStyle(fontSize: 15.0,),),
+              ), 
+              new SizedBox(height: 10.0,),
               new InkWell(
                 onTap :(){
                   if(index.contains(0)){
@@ -145,7 +158,7 @@ class MyTeamState extends State<MyTeam> {
                       new Expanded(//use Expanded to wrap list view in case of error for unbound height
                         child: new ListView.builder(
                           shrinkWrap: true,
-                          physics: ScrollPhysics(),
+                          physics: BouncingScrollPhysics(),
                           itemCount: _Result.length,
                           itemBuilder: (context, index) => ResultTile(_Result[index]),
                         ),
@@ -171,7 +184,7 @@ class MyTeamState extends State<MyTeam> {
               new Offstage(
                 offstage: !index.contains(1),
                 child:new Container(
-                  height: 400,
+                  height: 350,
                   child: new Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -179,7 +192,7 @@ class MyTeamState extends State<MyTeam> {
                       new Expanded(//use Expanded to wrap list view in case of error for unbound height
                         child: new ListView.builder(
                           shrinkWrap: true,
-                          physics: ScrollPhysics(),
+                          physics: BouncingScrollPhysics(),
                           itemCount: _Players.length,
                           itemBuilder: (context, index) => PlayerTile(_Players[index]),
                         ),
@@ -230,7 +243,7 @@ class ResultTile extends StatelessWidget{
   }
   Widget build(BuildContext context){
     return new Container(
-      margin: EdgeInsets.only(top: 8.0,bottom: 8.0),
+      margin: EdgeInsets.all(10.0),
       padding: EdgeInsets.all(10.0),
       decoration: new BoxDecoration(
         boxShadow:[
@@ -310,7 +323,7 @@ class PlayerTile extends StatelessWidget{
   }
   Widget build(BuildContext context){
     return new Container(
-      margin: EdgeInsets.only(top: 8.0,bottom: 8.0),
+      margin: EdgeInsets.all(10.0),
       padding: EdgeInsets.all(10.0),
       decoration: new BoxDecoration(
         boxShadow:[
