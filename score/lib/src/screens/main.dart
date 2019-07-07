@@ -12,6 +12,9 @@ import '../screens/my_team.dart';
 import '../screens/leaderboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../screens/fun.dart';
+import '../../models/liveMatch.dart';
+import '../../models/liveMatchTile.dart';
 String key="mw23cr5x274anr3xx9g6yugj";
 Map<String,String> teamName;
 class MainScreen extends StatefulWidget {
@@ -21,6 +24,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   String matchId;
+  String status;
   String overs;
   String score;
   String runRate;
@@ -29,17 +33,17 @@ class _MainScreenState extends State<MainScreen> {
   String battingTeam;
   String bowlingTeam;
   Set<int> index;
+  bool areMatchs;
   List<UpMatche> _UpMatches = <UpMatche>[];
   Inning inning1;
   Inning inning2;
+  List<LiveMatch> _LiveMatchs=<LiveMatch>[];
   @override
   void initState(){
     super.initState();
-    // listenForUpMatches();
-    //fetchLeaderboard();
     fetch2();
-    
-    // fetch("sr:match:17517265");
+    status="fetching";
+    areMatchs=false;
     overs="23.1/50";
     score="130/1";
     runRate="6.67";
@@ -72,7 +76,7 @@ class _MainScreenState extends State<MainScreen> {
         await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key='+key); 
     if (response.statusCode == 200) {
       Map<String, dynamic> data=json.decode(response.body);
-      // print(data['sport_events']);
+      print(data);
       for(var i=0;i<data['sport_events'].length;i++){
         var unique_id=data['sport_events'][i]['id'];
         var date=data['sport_events'][i]['scheduled'].toString().split('T')[0];
@@ -81,7 +85,6 @@ class _MainScreenState extends State<MainScreen> {
         var status=data['sport_events'][i]['status'];
         var time=data['sport_events'][i]['scheduled'].toString().split('T')[1].split('+')[0];
         var type=data['sport_events'][i]['tournament']['type'].toString().toUpperCase();
-        // (String id, String date, String time, String team1, String team2, String type, String status):
         UpMatche currMatch=UpMatche.fromData(unique_id,date,time,team1,team2,type,status);
         setState(() =>  _UpMatches.add(currMatch));
       }
@@ -89,126 +92,137 @@ class _MainScreenState extends State<MainScreen> {
        //If that call was not successful, throw an error.
       throw Exception('Failed to load post');
     }
+    LiveMatch liveMatch=LiveMatch.fromData("hide", status, overs, score, runRate, currentInning, tossWonBy, battingTeam, bowlingTeam, index, inning1, inning2);
+    _LiveMatchs.add(liveMatch);
+    _LiveMatchs.add(liveMatch);
+    _LiveMatchs.add(liveMatch);
+    _LiveMatchs.add(liveMatch);
+    fetch();
+    // final response1 =
+    //     await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key='+key);
+    // Timer.periodic(Duration(seconds: 30), (timer){
+    //   fetch();
+    // }); 
+  }
+  void fetch() async{
     DateTime now = new DateTime.now();
     String year=now.year.toString();
     String month=now.month.toString().length==1?"0"+now.month.toString():now.month.toString();
     String day=now.day.toString().length==1?"0"+now.day.toString():now.day.toString();
     String date=year+"-"+month+"-"+day;
     String liveMatchId="No";
+    // date="2019-07-06";
     final response1 =
         await http.get('https://api.sportradar.com/cricket-t2/en/schedules/'+date+'/schedule.json?api_key='+key); 
     if (response1.statusCode == 200) {
-      Map<String, dynamic> data=json.decode(response1.body);
-      for(var i=0;i<data['sport_events'].length;i++){
-        if(data['sport_events'][i]['season']['name']=="World Cup 2019"){
-          liveMatchId=data['sport_events'][i]['id'];
-        }
-      }
-    } else {
-       //If that call was not successful, throw an error.
-      throw Exception('Failed to load post');
-    }
-    fetch(liveMatchId);
-    // fetch(liveMatchId);
-    // final response1 =
-    //     await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key='+key);
-    // Timer.periodic(Duration(seconds: 3), (timer){
-    //   fetch("sr:match:17517265");
-    // }); 
-  }
-  void fetch(String mId) async{
-    final response =
-        await http.get('https://api.sportradar.com/cricket-t2/en/matches/'+ mId +'/timeline/delta.json?api_key='+key); 
-    if (response.statusCode == 200) {
-       //If the call to the server was successful, parse the JSON
-      Map<String, dynamic> data=json.decode(response.body);
-      
-      //Variable showing live score card
-      score=data['sport_event_status']['display_score'].toString();
-      overs=data['sport_event_status']['period_scores'][0]['display_overs'].toString()+"/"+data['sport_event_status']['period_scores'][0]['allotted_overs'].toString();
-      runRate=data['sport_event_status']['run_rate'].toString();
-      int inning=data['sport_event_status']['current_inning']-1;
-      currentInning=data['sport_event_status']['current_inning'].toString();
-      tossWonBy=teamName[data['sport_event_status']['toss_won_by']].toString();
-      battingTeam=teamName[data['statistics']['innings'][inning]['batting_team']].toString();
-      bowlingTeam=teamName[data['statistics']['innings'][inning]['bowling_team']].toString();
-      print(battingTeam);
-      print(bowlingTeam);
-      //variables for innings
-      for(var i=0;i<2;i++){
-        String inning_number=data['statistics']['innings'][i]['number'].toString();
-        String bowl_team=data['statistics']['innings'][i]['bowling_team'].toString();
-        String bat_team=data['statistics']['innings'][i]['batting_team'].toString();
-        List<Over> inn_overs= <Over>[];
-        for(var j=0;j<data['statistics']['innings'][i]['overs'].length;j++){
-          String no=data['statistics']['innings'][i]['overs'][j]['number'].toString();
-          String run=data['statistics']['innings'][i]['overs'][j]['runs'].toString();
-          String wick=data['statistics']['innings'][i]['overs'][j]['wickets'].toString();
-          if(no=="null")no="0";
-          if(run=="null")run="0";
-          if(wick=="null")wick="0";
-          Over curr_over=Over.fromData(no, run, wick);
-          inn_overs.add(curr_over);
-        }
-        int batting_index=0;
-        int bowling_index=1;
-        if(data['statistics']['innings'][i]['teams'][1]['statistics']['bowling']==null){
-          batting_index=1;
-          bowling_index=0;
-        }
-        String over=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['overs'].toString();
-        String wick=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['wickets'].toString();
-        String maiden=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['maidens'].toString();
-        List<Bowler> bolwer=<Bowler>[];
-        for(var j=0;j<data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'].length;j++){
-          String name=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['name'].toString();
-          String runs=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['runs_conceded'].toString();
-          String overs_bowled=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['overs_bowled'].toString();
-          String wick=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['maidens'].toString();
-          if(wick=="null")wick="0";
-          if(runs=="null")runs="0";
-          if(over=="null")over="0";
-          Bowler bowl=Bowler.fromData(name, runs, overs_bowled, wick);
-          bolwer.add(bowl);
-        }
-        Bowling bowling=Bowling.fromData(over, wick, maiden, bolwer);
-        String run_scored=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['runs'].toString();
-        String run_rate=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['run_rate'].toString();
-        String balls_faced=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['balls_faced'].toString();
-        Batting batting=Batting.fromData(run_scored, run_rate, balls_faced);
-        if(i==0){
-          inning1=Inning.fromData(inning_number, bat_team, bowl_team, inn_overs, bowling, batting);
-        }
-        if(i==1){
-          inning2=Inning.fromData(inning_number, bat_team, bowl_team, inn_overs, bowling, batting);
-        }
-      }
-      print(inning1);
-      print(inning2);
-      setState(() {
-        overs=overs;
-        score=score;
-        runRate=runRate;
-        currentInning=currentInning;
-        tossWonBy=tossWonBy;
-        battingTeam=battingTeam;
-        bowlingTeam=bowlingTeam;
-        inning1=inning1;
-        inning2=inning2;
-      });
-      // print(data['standings'][0]['groups'][0]['team_standings']);
-      // LeaderBoardRow header=LeaderBoardRow.fromData("Team","Rank","M","W","D","L","PTS","NRR");
-      // _LeaderBoardRows.add(header);
-      // for(var i=0;i<data['standings'][0]['groups'][0]['team_standings'].length;i++){
-      //   LeaderBoardRow currRow=LeaderBoardRow.fromJSON(data['standings'][0]['groups'][0]['team_standings'][i]);
-      //   setState(() => _LeaderBoardRows.add(currRow));
-      // }
+      Map<String, dynamic> data1=json.decode(response1.body);
+      // print(data);
+      if(data1['sport_events'].length!=0)areMatchs=true;
+      for(var i1=0;i1<data1['sport_events'].length;i1++){
+        if(data1['sport_events'][i1]['season']['name']=="World Cup 2019"){
+          String mId=data1['sport_events'][i1]['id'];
+          print(mId);
+          final response =
+          await http.get('https://api.sportradar.com/cricket-t2/en/matches/'+ mId +'/timeline/delta.json?api_key='+key); 
+          if (response.statusCode == 200) {
+            //If the call to the server was successful, parse the JSON
+            Map<String, dynamic> data=json.decode(response.body);
+            print(i1);
+            LiveMatch liveMatch1=LiveMatch.fromData(mId, status, overs, score, runRate, currentInning, tossWonBy, battingTeam, bowlingTeam, index, inning1, inning2);
 
-    } else {
+            //Variable showing live score card
+            status=data['sport_event_status']['status'];
+
+            liveMatch1.status=status;
+            print("main"+liveMatch1.matchId+liveMatch1.status);
+            if(status=="not_started"){
+              liveMatch1.battingTeam=data['sport_event']['competitors'][0]['name'].toString();
+              liveMatch1.bowlingTeam=data['sport_event']['competitors'][1]['name'].toString();
+            }
+            else if(status=="closed"){
+              liveMatch1.battingTeam=data['sport_event']['competitors'][0]['name'].toString();
+              liveMatch1.bowlingTeam=data['sport_event']['competitors'][1]['name'].toString();
+              liveMatch1.tossWonBy=data['sport_event_status']['match_result'];
+            }
+            else{
+              int inning=data['sport_event_status']['current_inning']-1;
+              liveMatch1.score=data['sport_event_status']['display_score'].toString();
+              liveMatch1.overs=data['sport_event_status']['period_scores'][inning]['display_overs'].toString()+"/"+data['sport_event_status']['period_scores'][inning]['allotted_overs'].toString();
+              liveMatch1.runRate=data['sport_event_status']['run_rate'].toString();
+              liveMatch1.currentInning=data['sport_event_status']['current_inning'].toString();
+              liveMatch1.tossWonBy=teamName[data['sport_event_status']['toss_won_by']].toString();
+              liveMatch1.battingTeam=teamName[data['statistics']['innings'][inning]['batting_team']].toString();
+              liveMatch1.bowlingTeam=teamName[data['statistics']['innings'][inning]['bowling_team']].toString();
+              for(var i=0;i<2;i++){
+                String inning_number=data['statistics']['innings'][i]['number'].toString();
+                String bowl_team=data['statistics']['innings'][i]['bowling_team'].toString();
+                String bat_team=data['statistics']['innings'][i]['batting_team'].toString();
+                List<Over> inn_overs= <Over>[];
+                for(var j=0;j<data['statistics']['innings'][i]['overs'].length;j++){
+                  String no=data['statistics']['innings'][i]['overs'][j]['number'].toString();
+                  String run=data['statistics']['innings'][i]['overs'][j]['runs'].toString();
+                  String wick=data['statistics']['innings'][i]['overs'][j]['wickets'].toString();
+                  if(no=="null")no="0";
+                  if(run=="null")run="0";
+                  if(wick=="null")wick="0";
+                  Over curr_over=Over.fromData(no, run, wick);
+                  inn_overs.add(curr_over);
+                }
+                int batting_index=0;
+                int bowling_index=1;
+                if(data['statistics']['innings'][i]['teams'][1]['statistics']['bowling']==null){
+                  batting_index=1;
+                  bowling_index=0;
+                }
+                String over=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['overs'].toString();
+                String wick=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['wickets'].toString();
+                String maiden=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['maidens'].toString();
+                List<Bowler> bolwer=<Bowler>[];
+                for(var j=0;j<data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'].length;j++){
+                  String name=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['name'].toString();
+                  String runs=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['runs_conceded'].toString();
+                  String overs_bowled=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['overs_bowled'].toString();
+                  String wick=data['statistics']['innings'][i]['teams'][bowling_index]['statistics']['bowling']['players'][j]['statistics']['maidens'].toString();
+                  if(wick=="null")wick="0";
+                  if(runs=="null")runs="0";
+                  if(over=="null")over="0";
+                  Bowler bowl=Bowler.fromData(name, runs, overs_bowled, wick);
+                  bolwer.add(bowl);
+                }
+                Bowling bowling=Bowling.fromData(over, wick, maiden, bolwer);
+                String run_scored=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['runs'].toString();
+                String run_rate=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['run_rate'].toString();
+                String balls_faced=data['statistics']['innings'][i]['teams'][batting_index]['statistics']['batting']['balls_faced'].toString();
+                Batting batting=Batting.fromData(run_scored, run_rate, balls_faced);
+                if(i==0){
+                  inning1=Inning.fromData(inning_number, bat_team, bowl_team, inn_overs, bowling, batting);
+                }
+                if(i==1){
+                  inning2=Inning.fromData(inning_number, bat_team, bowl_team, inn_overs, bowling, batting);
+                }
+                liveMatch1.inning1=inning1;
+                liveMatch1.inning2=inning2;
+              }
+            }
+            
+          setState(() {
+            print("chanign"+liveMatch1.status);
+            _LiveMatchs[i1]=liveMatch1;
+          });
+          // Future<LiveMatch> liveMatch=fetch(liveMatchId);
+          // LiveMatch liveMatch=LiveMatch.fromData(liveMatchId, status, overs, score, runRate, currentInning, tossWonBy, battingTeam, bowlingTeam, index, inning1, inning2);
+          // setState(() =>  _LiveMatchs.add(liveMatch));
+          // print(liveMatchId);
+          // print(i);
+          // fetch(liveMatchId,i);
+        }
+      }
+    } 
+    }else {
        //If that call was not successful, throw an error.
       throw Exception('Failed to load post');
     }
-  }  
+  }
   @override
   Widget build(BuildContext context) {
     
@@ -218,21 +232,27 @@ class _MainScreenState extends State<MainScreen> {
         length: 2,
         child: new Scaffold(
           appBar: new AppBar(
-            title: new Text('Main'),
+            title: new Text('Score'),
             backgroundColor: Colors.blue,
-            // actions: <Widget>[
-            //   IconButton(
-            //     onPressed: () {},
-            //     icon: Icon(Icons.search),
-            //   ),
-            //   IconButton(
-            //     onPressed: () {},
-            //     icon: Icon(Icons.shopping_cart),
-            //   ),
-            // ],
+            actions: <Widget>[
+              IconButton(
+                onPressed: () {
+                  var route = new MaterialPageRoute(
+                  builder: (BuildContext context) => 
+                      new FunPage(),
+                  );
+                  Navigator.of(context).push(route);
+                },
+                icon: Icon(Icons.question_answer),
+              ),
+              // IconButton(
+              //   onPressed: () {},
+              //   icon: Icon(Icons.shopping_cart),
+              // ),
+            ],
             bottom: new TabBar(
               tabs: [
-                new Tab(text: 'LIVE'),
+                new Tab(text: 'TODAYS MATCHES'),
                 new Tab(text: 'SCHEDULE'),
               ],
               indicatorColor: Colors.white,
@@ -240,126 +260,35 @@ class _MainScreenState extends State<MainScreen> {
           ),
           body: new TabBarView(
             children: [
+              new Container(
+                child: (_LiveMatchs.length!=0)?new Container(
+                  child: (areMatchs)?new ListView.builder(
+                    physics: BouncingScrollPhysics(),
+                    itemCount: _LiveMatchs.length,
+                    itemBuilder: (context, index) => LiveMatchTile(_LiveMatchs[index]),
+                  ):new Center(
+                    child: new Text("No Live Matches Today"),
+                  ),
+                ):new Center(
+                  child: new SpinKitFadingCircle(
+                    color: Colors.blue,
+                    size:50
+                  )
+                ),
+              ),
               // new Icon(Icons.access_alarm),
               new Container(
-                child:(battingTeam!="team1")?new SingleChildScrollView(
-                  child: new Column(
-                  children: <Widget>[
-                    new Container(
-                      padding: EdgeInsets.all(5.0),
-                      decoration: new BoxDecoration(
-                        boxShadow:[
-                          new BoxShadow(
-                            color: Colors.black,
-                            blurRadius: 3.0
-                          )
-                        ],
-                        color: Color.fromRGBO(230, 230, 230, 1.0)
-                      ),
-                      margin: EdgeInsets.all(15.0),
-                      child: new Row(
-                        children: <Widget>[
-                          new Container(
-                              child: new Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: <Widget>[
-                                  new Text("Batting",style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold),),
-                                  new SizedBox(height: 10.0,),
-                                  new CircleAvatar(
-                                    backgroundImage: new AssetImage("assets/images/"+battingTeam.toLowerCase().replaceAll(' ','-')+".jpg"),
-                                    backgroundColor: Colors.red,
-                                    radius: 30.0,
-                                  ),
-                                  new SizedBox(height: 10.0,),
-                                  new Text(battingTeam.toUpperCase(),style: new TextStyle(fontSize: 13.0),)
-                                ],
-                              )
-                            ),
-                            new Expanded(
-                              child: new Container(
-                                      // decoration: new BoxDecoration(border: Border.all()),
-                                      padding: new EdgeInsets.all(8.0),
-                                      child: new Column(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                        children: <Widget>[
-                                          new Text("Inning: "+currentInning,style: new TextStyle(fontWeight: FontWeight.bold),),
-                                          new Text("Score: "+score,style: new TextStyle(fontWeight: FontWeight.bold),),
-                                          new Text("Overs: "+overs,style: new TextStyle(fontWeight: FontWeight.bold),),
-                                          new Text("Run Rate: "+runRate,style: new TextStyle(fontWeight: FontWeight.bold),),
-                                          new Text("*Toss Won By: "+tossWonBy,style: new TextStyle(fontSize: 10.0),),
-                                        ],
-                                      ),
-                                    ),
-                            ),
-                            new Container(
-                              child: new Column(
-                                children: <Widget>[
-                                  new Text("Bowling",style: new TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold),),
-                                  new SizedBox(height: 10.0,),
-                                  new CircleAvatar(
-                                    backgroundImage: new AssetImage("assets/images/"+bowlingTeam.toLowerCase().replaceAll(' ','-')+".jpg"),
-                                    backgroundColor: Colors.red,
-                                    radius: 30.0,
-                                  ),
-                                  new SizedBox(height: 10.0,),
-                                  new Text(bowlingTeam.toUpperCase(),style: new TextStyle(fontSize: 13.0),)
-                                ],
-                              )
-                            ),
-                        ],
-                      ),
-                    ),
-                    new InkWell(
-                      onTap :(){
-                        if(index.contains(1)){
-                          index.remove(1);
-                        }
-                        else{
-                          index.add(1);
-                        }
-                        setState(() {
-                          index=index;
-                        });
-                      } ,
-                      child:new Heading("Inning 1")
-                    ),
-                    new Offstage(
-                      offstage: !index.contains(1),
-                      child: new InningTile(inning1),
-                    ),
-                    new InkWell(
-                      onTap :(){
-                        if(index.contains(2)){
-                          index.remove(2);
-                        }
-                        else{
-                          index.add(2);
-                        }
-                        setState(() {
-                          index=index;
-                        });
-                      } ,
-                      child:new Heading("Inning 2")
-                    ),
-                    new Offstage(
-                      offstage: !index.contains(2),
-                      child: new InningTile(inning2),
-                    ),
-                  ],
-                ),
+                child: (_UpMatches.length!=0)?new ListView.builder(
+                  physics: BouncingScrollPhysics(),
+                  itemCount: _UpMatches.length,
+                  itemBuilder: (context, index) => UpMatcheTile(_UpMatches[index]),
                 ):new Center(
                   child: new SpinKitFadingCircle(
                     color: Colors.blue,
                     size: 50.0,
                   ),
-                )
-              ),
-              new ListView.builder(
-                physics: BouncingScrollPhysics(),
-                itemCount: _UpMatches.length,
-                itemBuilder: (context, index) => UpMatcheTile(_UpMatches[index]),
-              ),
+                ),
+              ),              
             ],
           ),
           drawer: Drawer(
@@ -400,7 +329,7 @@ class _MainScreenState extends State<MainScreen> {
                 // Update the state of the app
                 // ...
                 // Then close the drawer
-                 Navigator.pop(context);
+                Navigator.pop(context);
                 var route = new MaterialPageRoute(
                   builder: (BuildContext context) => 
                     new MyTeam(),
@@ -438,16 +367,16 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.of(context).push(route);
               },
             ),
-            ListTile(
-              leading: Icon(Icons.info),
-              title: Text('About Us'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(Icons.info),
+            //   title: Text('About Us'),
+            //   onTap: () {
+            //     // Update the state of the app
+            //     // ...
+            //     // Then close the drawer
+            //     Navigator.pop(context);
+            //   },
+            // ),
           ],
         ),
       ),
@@ -480,3 +409,4 @@ class Heading extends StatelessWidget{
     );
   }
 }
+

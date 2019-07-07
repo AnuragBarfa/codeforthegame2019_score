@@ -62,7 +62,7 @@ class _LeaderboardState extends State<Leaderboard> {
     return Scaffold(
       appBar: new AppBar(
         automaticallyImplyLeading: true,
-        title: new Text("Leaderboards Status"),
+        title: new Text("Leaderboard"),
         leading: IconButton(icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context,false),
         )

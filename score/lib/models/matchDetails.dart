@@ -4,6 +4,7 @@ class MatchDetails{
   String team2;
   Venue venue;
   String status;
+  String result;
   
   static String change(String time,int flag){
     var x=DateTime.parse(time);
@@ -13,12 +14,13 @@ class MatchDetails{
     String ans=x.toString().split(' ')[1].split('.')[0];
     return ans;
   }
-  MatchDetails.fromData(String date, String team1, String team2, Venue venue, String status):
+  MatchDetails.fromData(String date, String team1, String team2, Venue venue, String status, String result):
     date=date,
     team1=team1,
     team2=team2,
     venue=venue,
-    status=status;
+    status=status,
+    result=result;
 }
 
 class Venue{

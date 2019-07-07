@@ -4,6 +4,7 @@ import 'screens/setting.dart';
 import 'screens/my_team.dart';
 import 'screens/leaderboard.dart';
 import 'screens/match_detail.dart';
+import 'screens/fun.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 class MyApp extends StatelessWidget {

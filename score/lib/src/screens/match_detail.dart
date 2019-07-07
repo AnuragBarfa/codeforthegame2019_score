@@ -52,11 +52,13 @@ class _DetailState extends State<Detail> {
       var team1=data['sport_event']['competitors'][0]['name'];
       var team2=data['sport_event']['competitors'][1]['name'];
       var status=data['sport_event_status']['status'];
-      var venue_name=data['sport_event']['venue'][''];
-      var venue_city=data['sport_event']['venue'][''];
-      var venue_country=data['sport_event']['venue'][''];
+      var result=data['sport_event_status']['match_result'];
+      var venue_name=data['sport_event']['venue']['name'];
+      var venue_city=data['sport_event']['venue']['city_name'];
+      var venue_country=data['sport_event']['venue']['country_name'];
       Venue venue=Venue.fromData(venue_name, venue_city, venue_country);
-      matchDetails=MatchDetails.fromData(date, team1, team2, venue, status);
+      print(venue.name);
+      matchDetails=MatchDetails.fromData(date, team1, team2, venue, status,result);
       //variables for innings
       inning1=null;
       inning2=null;
@@ -194,41 +196,47 @@ class _DetailState extends State<Detail> {
                   offstage: !index.contains(0),
                   child: new MatchDetailsTile(matchDetails),
                 ),
-                new InkWell(
-                  onTap :(){
-                    if(index.contains(1)){
-                      index.remove(1);
-                    }
-                    else{
-                      index.add(1);
-                    }
-                    setState(() {
-                      index=index;
-                    });
-                  } ,
-                  child:new Heading("Inning 1")
-                ),
-                new Offstage(
-                  offstage: !index.contains(1),
-                  child: new InningTile(inning1),
-                ),
-                new InkWell(
-                  onTap :(){
-                    if(index.contains(2)){
-                      index.remove(2);
-                    }
-                    else{
-                      index.add(2);
-                    }
-                    setState(() {
-                      index=index;
-                    });
-                  } ,
-                  child:new Heading("Inning 2")
-                ),
-                new Offstage(
-                  offstage: !index.contains(2),
-                  child: new InningTile(inning2),
+                new Container(
+                  child: (matchDetails!=null&&matchDetails.status!="not_started")?new Column(
+                    children: <Widget>[
+                      new InkWell(
+                        onTap :(){
+                          if(index.contains(1)){
+                            index.remove(1);
+                          }
+                          else{
+                            index.add(1);
+                          }
+                          setState(() {
+                            index=index;
+                          });
+                        } ,
+                        child:new Heading("Inning 1")
+                      ),
+                      new Offstage(
+                        offstage: !index.contains(1),
+                        child: new InningTile(inning1),
+                      ),
+                      new InkWell(
+                        onTap :(){
+                          if(index.contains(2)){
+                            index.remove(2);
+                          }
+                          else{
+                            index.add(2);
+                          }
+                          setState(() {
+                            index=index;
+                          });
+                        } ,
+                        child:new Heading("Inning 2")
+                      ),
+                      new Offstage(
+                        offstage: !index.contains(2),
+                        child: new InningTile(inning2),
+                      ),
+                    ],
+                  ):new Container(height: 0,),
                 ),
               ],
             ),
@@ -271,7 +279,48 @@ class MatchDetailsTile extends StatelessWidget{
   Widget build(BuildContext context){
     return new Container(
       child: matchDetails!=null?new Container(
-        child: new Text(matchDetails.status),
+        child: new Column(
+          children: <Widget>[
+            new Container(
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  new Text(matchDetails.team1,style: new TextStyle(fontWeight: FontWeight.bold),),
+                  new Text("Vs"),
+                  new Text(matchDetails.team2,style: new TextStyle(fontWeight: FontWeight.bold),)
+                ],
+              ),
+            ),
+
+            new SizedBox(height: 10,),
+            // new Row(
+            //   children: <Widget>[
+            //     new Text("Status: "+matchDetails.status)
+            //   ],
+            // ),
+            new Container(
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  (matchDetails.status=="not_started")?new Text("Match Not Started Yet"):new Container(
+                    child: (matchDetails.status=="cancelled")?new Text("Match Cancelled"):new Text("Result: "+matchDetails.result,style: new TextStyle(fontWeight: FontWeight.bold),),
+                  ),
+                ],
+              ),
+            ),
+            new SizedBox(height: 10,),
+            new Container(
+              child: new Column(
+                children: <Widget>[
+                  new Text("Venue",style: new TextStyle(fontWeight: FontWeight.bold),),
+                  new Text("Place: "+matchDetails.venue.name),
+                  new Text("City: "+matchDetails.venue.city),
+                  new Text("Country: "+matchDetails.venue.country),
+                ],
+              ),
+            )
+          ],
+        )
       ):new Container(height: 0,),
     );
   }
