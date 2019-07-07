@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       },
       // home: new MyTeam(),
       // home: new Detail("sr:match:17517303"),
-      home: new MainScreen(),
+      home: new Splash(),
     );
   }
 }

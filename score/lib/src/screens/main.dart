@@ -15,7 +15,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import '../screens/fun.dart';
 import '../../models/liveMatch.dart';
 import '../../models/liveMatchTile.dart';
-String key="mw23cr5x274anr3xx9g6yugj";
+String key="x9em98rz6n3qsk464wqrmmzy";
 Map<String,String> teamName;
 class MainScreen extends StatefulWidget {
   @override
@@ -97,12 +97,12 @@ class _MainScreenState extends State<MainScreen> {
     _LiveMatchs.add(liveMatch);
     _LiveMatchs.add(liveMatch);
     _LiveMatchs.add(liveMatch);
-    fetch();
+    // fetch();
     // final response1 =
     //     await http.get('https://api.sportradar.com/cricket-t2/en/tournaments/sr:tournament:2474/schedule.json?api_key='+key);
-    // Timer.periodic(Duration(seconds: 30), (timer){
-    //   fetch();
-    // }); 
+    Timer.periodic(Duration(seconds: 30), (timer){
+      fetch();
+    }); 
   }
   void fetch() async{
     DateTime now = new DateTime.now();
@@ -243,7 +243,7 @@ class _MainScreenState extends State<MainScreen> {
                   );
                   Navigator.of(context).push(route);
                 },
-                icon: Icon(Icons.question_answer),
+                icon: Icon(Icons.assignment),
               ),
               // IconButton(
               //   onPressed: () {},
@@ -323,7 +323,7 @@ class _MainScreenState extends State<MainScreen> {
               },
             ),
             ListTile(
-              leading:Icon(Icons.home),
+              leading:Icon(Icons.star),
               title: Text('My Team'),
               onTap: () {
                 // Update the state of the app
@@ -338,7 +338,7 @@ class _MainScreenState extends State<MainScreen> {
               },
             ),
             ListTile(
-              leading:Icon(Icons.home),
+              leading:Icon(Icons.assessment),
               title: Text('Leaderboard'),
               onTap: () {
                 // Update the state of the app

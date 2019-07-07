@@ -5,7 +5,7 @@ import '../../models/inning.dart';
 import '../../models/inningTile.dart';
 import '../../models/matchDetails.dart';
 Map<String,String> teamName;
-String key="mw23cr5x274anr3xx9g6yugj";
+String key="x9em98rz6n3qsk464wqrmmzy";
 class Detail extends StatefulWidget {
   String matchId;
   Detail(String mId){
@@ -197,7 +197,7 @@ class _DetailState extends State<Detail> {
                   child: new MatchDetailsTile(matchDetails),
                 ),
                 new Container(
-                  child: (matchDetails!=null&&matchDetails.status!="not_started")?new Column(
+                  child: (matchDetails!=null&&(matchDetails.status!="not_started"&&matchDetails.status!="cancelled"))?new Column(
                     children: <Widget>[
                       new InkWell(
                         onTap :(){
@@ -303,7 +303,9 @@ class MatchDetailsTile extends StatelessWidget{
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
                   (matchDetails.status=="not_started")?new Text("Match Not Started Yet"):new Container(
-                    child: (matchDetails.status=="cancelled")?new Text("Match Cancelled"):new Text("Result: "+matchDetails.result,style: new TextStyle(fontWeight: FontWeight.bold),),
+                    child: (matchDetails.status=="cancelled")?new Text("Match Cancelled"):new Container(
+                      child: (matchDetails.status=="closed")?new Text("Result: "+matchDetails.result,style: new TextStyle(fontWeight: FontWeight.bold),):new Text(""),
+                    ),
                   ),
                 ],
               ),
