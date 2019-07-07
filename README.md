@@ -1,7 +1,7 @@
 # codeforthegame2019_score
 Flutter based application<br>
 
-you can use app in your android phone by downloading the apk file in your phone and then installing the app<br>
+you can use app in your android phone by downloading the apk file(app-release.apk) in your phone and then installing the app<br>
 ubantu settings for installation<br>
 Step 1)First, you have to download Flutter SDK using the <a href="https://storage.googleapis.com/flutter_infra/releases/beta/linux/flutter_linux_v0.6.0-beta.tar.xz">link</a>.<br>
 Step 2)Open the terminal and go to the directory where you have downloaded the flutter and extract it using command tar xf flutter_linux_v0.6.0-beta.tar.xz<br>
